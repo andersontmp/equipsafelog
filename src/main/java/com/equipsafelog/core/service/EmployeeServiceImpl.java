@@ -1,5 +1,7 @@
 package com.equipsafelog.core.service;
 
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.equipsafelog.core.domain.Employee;
 import com.equipsafelog.core.domain.IDEmployee;
+import com.equipsafelog.core.domain.Terminal;
 import com.equipsafelog.repository.EmployeeRepository;
 import com.equipsafelog.repository.IDEmployeeRepository;
 
@@ -21,6 +24,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
 	private IDEmployeeRepository idEmployeeRepository;
+
+	@Autowired
+	private TerminalService terminalService;
 
 	@Override
 	public List<Employee> getAllEmployees() {
@@ -75,6 +81,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public List<Employee> getEmployeeByCompany(Long companyId) {
 		return employeeRepository.findByActiveAndCompanyId(true, companyId);
+	}
+
+	@Override
+	public List<Employee> getEmployeeByTerminal(Long terminalId) {
+		Terminal terminal = terminalService.getTerminal(terminalId);
+		if (terminal != null && terminal.getCompany() != null) {
+			terminal.setLastCommunication(Calendar.getInstance());
+			terminalService.saveTerminal(terminal);
+			return employeeRepository.findByActiveAndCompanyId(true, terminal.getCompany().getId());
+		}
+		return null;
 	}
 
 }

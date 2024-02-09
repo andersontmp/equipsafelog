@@ -14,4 +14,6 @@ public interface EmployeeService {
 
 	List<Employee> getEmployeeByCompany(Long companyId);
 
+	List<Employee> getEmployeeByTerminal(Long terminalId);
+
 }

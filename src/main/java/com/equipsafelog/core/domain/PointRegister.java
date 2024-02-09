@@ -27,8 +27,9 @@ public class PointRegister {
 	@JoinColumn(name="employee")
 	private Employee employee;
 	
-	@Column(name = "terminal")
-	private Long terminalId;
+	@ManyToOne(fetch = FetchType.EAGER)	
+	@JoinColumn(name="terminal")
+	private Terminal terminal;
 	
 	@Column(name = "date")
 	private Calendar date;
@@ -39,14 +40,6 @@ public class PointRegister {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Long getTerminalId() {
-		return terminalId;
-	}
-
-	public void setTerminalId(Long terminalId) {
-		this.terminalId = terminalId;
 	}
 
 	public Calendar getDate() {
@@ -63,5 +56,13 @@ public class PointRegister {
 	
 	public void setEmployee(Employee employee) {
 		this.employee = employee;
+	}
+
+	public Terminal getTerminal() {
+		return terminal;
+	}
+
+	public void setTerminal(Terminal terminal) {
+		this.terminal = terminal;
 	}
 }

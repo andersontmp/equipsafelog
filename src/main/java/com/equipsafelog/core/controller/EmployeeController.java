@@ -47,4 +47,13 @@ public class EmployeeController {
 			return f;
 		}).collect(Collectors.toList());
 	}
+	
+	@GetMapping(path = "/terminal/{terminalId}")
+	public List<Employee> getEmployeeByTerminal(@PathVariable Long terminalId) {
+		return employeeService.getEmployeeByTerminal(terminalId).parallelStream().map(f -> {
+			f.setCompany(null);
+			f.setActive(null);
+			return f;
+		}).collect(Collectors.toList());
+	}
 }

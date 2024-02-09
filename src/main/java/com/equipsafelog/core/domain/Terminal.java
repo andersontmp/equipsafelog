@@ -1,6 +1,6 @@
 package com.equipsafelog.core.domain;
 
-import java.util.Objects;
+import java.util.Calendar;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -12,17 +12,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "employee")
-public class Employee {
+@Table(name = "terminal")
+public class Terminal {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_seq")
-	@SequenceGenerator(name = "employee_seq", sequenceName = "employee_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "terminal_seq")
+	@SequenceGenerator(name = "terminal_seq", sequenceName = "terminal_seq", allocationSize = 1)
 	@Column(name = "id")
 	private Long id;
 
@@ -34,12 +33,14 @@ public class Employee {
 	@JsonIgnoreProperties(value = { "applications", "hibernateLazyInitializer" })
 	private Company company;
 
+	@Column(name = "lastCommunication")
+	private Calendar lastCommunication;
+
+	@Column(name = "createDate")
+	private Calendar createDate;
+	
 	@Column(name = "active")
 	private Boolean active;
-
-	@OneToOne
-	@JoinColumn(name = "id_employee", referencedColumnName = "id")
-	private IDEmployee idEmployee;
 
 	public Long getId() {
 		return id;
@@ -65,6 +66,22 @@ public class Employee {
 		this.company = company;
 	}
 
+	public Calendar getLastCommunication() {
+		return lastCommunication;
+	}
+
+	public void setLastCommunication(Calendar lastCommunication) {
+		this.lastCommunication = lastCommunication;
+	}
+
+	public Calendar getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Calendar createDate) {
+		this.createDate = createDate;
+	}
+
 	public Boolean getActive() {
 		return active;
 	}
@@ -72,29 +89,5 @@ public class Employee {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
-
-	public IDEmployee getIdEmployee() {
-		return idEmployee;
-	}
-
-	public void setIdEmployee(IDEmployee idEmployee) {
-		this.idEmployee = idEmployee;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, identity);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Employee other = (Employee) obj;
-		return Objects.equals(id, other.id) && Objects.equals(identity, other.identity);
-	}
+	
 }
