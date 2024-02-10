@@ -6,6 +6,8 @@
       li(@click="selectOption('Conta')" :class="{ active: selectedOption === 'Conta' }") Conta
       li(@click="selectOption('Terminal')" :class="{ active: selectedOption === 'Terminal' }") Terminal
       li(@click="selectOption('Controle de Uso')" :class="{ active: selectedOption === 'Controle de Uso' }") Controle de Uso
+      li(@click="selectOption('Perfil')" :class="{ active: selectedOption === 'Perfil' }") Perfil
+      li(@click="selectOption('Registro de Utilização')" :class="{ active: selectedOption === 'Registro de Utilização' }") Registro de Utilização
 
   // Aqui você pode adicionar o conteúdo correspondente à opção selecionada
   div(v-if="selectedOption === 'Empregados'") 
@@ -13,17 +15,35 @@
   div(v-else-if="selectedOption === 'Empresa'")
     CompanyListVue() 
   div(v-else-if="selectedOption === 'Conta'") Conteúdo da opção Conta
-  div(v-else-if="selectedOption === 'Terminal'") Conteúdo da opção Terminal
+  div(v-else-if="selectedOption === 'Terminal'") 
+    TerminalListVue()
   div(v-else-if="selectedOption === 'Controle de Uso'") Conteúdo da opção Controle de Uso
+    UseControlListVue()
+  div(v-else-if="selectedOption === 'Perfil'") conteúdo da opção Perfil
+    PerfilListVue()
+  div(v-else-if="selectedOption === 'Registro de Utilização'") conteúdo do Registro de Utilização estou ficando bom em copiar e colar
+    UseRecordListVue()
 </template>
 <script>
 import CompanyListVue from './views/Companies/CompanyList.vue';
 import EmployeeListVue from './views/Employee/EmployeeList.vue';
+import PerfilListVue from './views/Perfil/PerfilList.vue';
+import TerminalListVue from './views/Terminal/TerminalList.vue';
+import UseControlListVue from './views/UseControl/UseControlList.vue';
+import UseRecordListVue from './views/UseRecord/UseRecordList.vue';
+
+
 
 export default {
   components: {
     CompanyListVue,
-    EmployeeListVue
+    EmployeeListVue,
+    TerminalListVue,
+    UseControlListVue,
+    PerfilListVue,
+    UseRecordListVue,
+
+
   },
   data() {
     return {
