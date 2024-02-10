@@ -72,7 +72,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 					inputEmployee.setCompany(companyService.getCompany(inputEmployee.getCompany().getId()));
 				}
 				inputEmployee.setIdEmployee(inputEmployee.getIdEmployee());
-				employeeRepository.save(inputEmployee);
+				return employeeRepository.save(inputEmployee);
 			}
 		}
 		return null;
