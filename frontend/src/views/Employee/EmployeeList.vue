@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    table
+    table.custom-table
       thead
         tr
           th Matricula
@@ -39,5 +39,22 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos específicos para este componente, se necessário */
+.table-container {
+  overflow-x: auto; /* Adiciona uma barra de rolagem horizontal se a tabela for muito larga */
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.custom-table th, .custom-table td {
+  border: 1px solid #ddd; /* Define as bordas */
+  padding: 8px; /* Adiciona espaçamento interno */
+  text-align: left; /* Alinha o texto à esquerda */
+}
+
+.custom-table th {
+  background-color: #f2f2f2; /* Adiciona uma cor de fundo para os cabeçalhos */
+}
 </style>

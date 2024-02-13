@@ -17,22 +17,21 @@
   div(v-else-if="selectedOption === 'Conta'") Conteúdo da opção Conta
   div(v-else-if="selectedOption === 'Terminal'") 
     TerminalListVue()
-  div(v-else-if="selectedOption === 'Controle de Uso'") Conteúdo da opção Controle de Uso
+  div(v-else-if="selectedOption === 'Controle de Uso'")
     UseControlListVue()
-  div(v-else-if="selectedOption === 'Perfil'") conteúdo da opção Perfil
+  div(v-else-if="selectedOption === 'Perfil'") 
     PerfilListVue()
-  div(v-else-if="selectedOption === 'Registro de Utilização'") conteúdo do Registro de Utilização estou ficando bom em copiar e colar
-    UseRecordListVue()
+  div(v-else-if="selectedOption === 'Registro de Utilização'")
+    PointRegisterListVue()
+    
 </template>
 <script>
-import CompanyListVue from './views/Companies/CompanyList.vue';
-import EmployeeListVue from './views/Employee/EmployeeList.vue';
-import PerfilListVue from './views/Perfil/PerfilList.vue';
-import TerminalListVue from './views/Terminal/TerminalList.vue';
-import UseControlListVue from './views/UseControl/UseControlList.vue';
-import UseRecordListVue from './views/UseRecord/UseRecordList.vue';
-
-
+import CompanyListVue from './views/companies/CompanyList.vue';
+import EmployeeListVue from './views/employee/EmployeeList.vue';
+import TerminalListVue from './views/terminal/TerminalList.vue';
+import UseControlListVue from './views/useControl/UseControlList.vue';
+import PerfilListVue from './views/perfil/PerfilList.vue';
+import PointRegisterListVue from './views/pointRegister/PointRegisterList.vue';
 
 export default {
   components: {
@@ -41,9 +40,7 @@ export default {
     TerminalListVue,
     UseControlListVue,
     PerfilListVue,
-    UseRecordListVue,
-
-
+    PointRegisterListVue,
   },
   data() {
     return {

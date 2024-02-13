@@ -1,7 +1,6 @@
 package com.equipsafelog.core.service;
 
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +78,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public List<Employee> getEmployeeByCompany(Long companyId) {
+	public List<Employee> getActiveEmployeeByCompany(Long companyId) {
 		return employeeRepository.findByActiveAndCompanyId(true, companyId);
 	}
 
@@ -92,6 +91,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 			return employeeRepository.findByActiveAndCompanyId(true, terminal.getCompany().getId());
 		}
 		return null;
+	}
+	
+	@Override
+	public List<Employee> getEmployeeByCompany(Long companyId) {
+		return employeeRepository.findByCompanyId(companyId);
 	}
 
 }

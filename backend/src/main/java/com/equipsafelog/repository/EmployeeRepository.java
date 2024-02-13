@@ -11,4 +11,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
 	@Query
 	public List<Employee> findByActiveAndCompanyId(Boolean active, Long companyId);
+
+	@Query
+	public List<Employee> findByCompanyId(Long companyId);
 }

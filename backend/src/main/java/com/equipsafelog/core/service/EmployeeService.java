@@ -12,8 +12,10 @@ public interface EmployeeService {
 
 	Employee saveEmployee(Employee inputEmployee);
 
-	List<Employee> getEmployeeByCompany(Long companyId);
-
 	List<Employee> getEmployeeByTerminal(Long terminalId);
+
+	List<Employee> getActiveEmployeeByCompany(Long companyId);
+
+	List<Employee> getEmployeeByCompany(Long companyId);
 
 }

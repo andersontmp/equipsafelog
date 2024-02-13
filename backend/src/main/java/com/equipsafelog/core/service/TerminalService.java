@@ -12,4 +12,6 @@ public interface TerminalService {
 
 	Terminal saveTerminal(Terminal inputTerminal);
 
+	List<Terminal> getTerminalsByCompany(Long id);
+
 }

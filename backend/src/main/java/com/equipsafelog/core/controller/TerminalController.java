@@ -38,4 +38,12 @@ public class TerminalController {
 	public Terminal saveTerminal(@RequestBody Terminal inputEmployee) {
 		return terminalService.saveTerminal(inputEmployee);
 	}
+	
+	@GetMapping(path = "/company/{id}")
+	public List<Terminal> getTerminalsByCompany(@PathVariable Long id) {
+		return terminalService.getTerminalsByCompany(id).parallelStream().map(f -> {
+			f.setCompany(null);
+			return f;
+		}).collect(Collectors.toList());
+	}
 }

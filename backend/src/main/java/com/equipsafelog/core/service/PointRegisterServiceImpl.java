@@ -56,6 +56,16 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 
 	@Override
 	public List<PointRegisterResultSearch> findByCriteria(PointRegisterCriteriaSearch criteria) {
+		if(criteria.getStart() != null) {
+			criteria.getStart().set(Calendar.HOUR_OF_DAY, 0);
+			criteria.getStart().set(Calendar.MINUTE, 0);
+			criteria.getStart().set(Calendar.SECOND, 0);
+		}
+		if(criteria.getEnd() != null) {
+			criteria.getEnd().set(Calendar.HOUR_OF_DAY, 23);
+			criteria.getEnd().set(Calendar.MINUTE, 59);
+			criteria.getEnd().set(Calendar.SECOND, 59);
+		}
 		List<PointRegister> findByCriteria = pointRegisterRepository.findByCriteria(true, criteria.getCompanyId(),
 				criteria.getStart(), criteria.getEnd());
 		Map<Employee, List<PointRegister>> collect = findByCriteria.stream()
@@ -91,6 +101,16 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 
 	@Override
 	public List<PointRegister> getRegistersByEmployee(PointRegisterCriteriaSearch criteria) {
+		if(criteria.getStart() != null) {
+			criteria.getStart().set(Calendar.HOUR_OF_DAY, 0);
+			criteria.getStart().set(Calendar.MINUTE, 0);
+			criteria.getStart().set(Calendar.SECOND, 0);
+		}
+		if(criteria.getEnd() != null) {
+			criteria.getEnd().set(Calendar.HOUR_OF_DAY, 23);
+			criteria.getEnd().set(Calendar.MINUTE, 59);
+			criteria.getEnd().set(Calendar.SECOND, 59);
+		}
 		return pointRegisterRepository.findByEmployeeAndDates(criteria.getEmployeeId(), criteria.getStart(),
 				criteria.getEnd());
 	}

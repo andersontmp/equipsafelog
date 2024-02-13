@@ -54,4 +54,9 @@ public class TerminalServiceImpl implements TerminalService {
 		}
 		return null;
 	}
+
+	@Override
+	public List<Terminal> getTerminalsByCompany(Long id) {
+		return terminalRepository.findByCompanyId(id);
+	}
 }
