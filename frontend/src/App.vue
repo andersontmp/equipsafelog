@@ -1,5 +1,7 @@
 <template lang="pug">
-  div
+  div.container
+    span.text-center Equip Safe Log
+  div.container
     ul.menu
       li(@click="selectOption('Empregados')" :class="{ active: selectedOption === 'Empregados' }") Empregados
       li(@click="selectOption('Empresa')" :class="{ active: selectedOption === 'Empresa' }") Empresa
@@ -18,7 +20,7 @@
   div(v-else-if="selectedOption === 'Terminal'") 
     TerminalListVue()
   div(v-else-if="selectedOption === 'Controle de Uso'")
-    UseControlListVue()
+    UserListVue()
   div(v-else-if="selectedOption === 'Perfil'") 
     PerfilListVue()
   div(v-else-if="selectedOption === 'Registro de Utilização'")
@@ -29,7 +31,7 @@
 import CompanyListVue from './views/companies/CompanyList.vue';
 import EmployeeListVue from './views/employee/EmployeeList.vue';
 import TerminalListVue from './views/terminal/TerminalList.vue';
-import UseControlListVue from './views/useControl/UseControlList.vue';
+import UserListVue from './views/user/UserList.vue';
 import PerfilListVue from './views/perfil/PerfilList.vue';
 import PointRegisterListVue from './views/pointRegister/PointRegisterList.vue';
 
@@ -38,7 +40,7 @@ export default {
     CompanyListVue,
     EmployeeListVue,
     TerminalListVue,
-    UseControlListVue,
+    UserListVue,
     PerfilListVue,
     PointRegisterListVue,
   },
@@ -74,5 +76,15 @@ export default {
 
 .menu li:hover {
   background-color: #f0f0f0;
+}
+.container {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.text-center {
+  display: inline-block;
+  font-size: x-large;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 </style>

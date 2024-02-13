@@ -22,7 +22,8 @@ export default {
   },
   methods: {
     viewDetails(employeeId) {
-      this.$router.push({ name: 'EmployeeDetail', params: { id: employeeId } });
+      //this.$router.push({ name: 'employee', params: { id: employeeId } });
+      console.info(employeeId);
     }
   },
   mounted() {

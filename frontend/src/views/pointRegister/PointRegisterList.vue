@@ -26,7 +26,7 @@ div
         tr(v-for="item in getListData()", :key="item.id", @click="viewDetails(item.id)")
           td {{ item.employee.identity }}
           td {{ item.terminal.identity }}
-          td {{ formatDate(item.date) }}
+          td {{ formatDateTime(item.date) }}
   div(v-if="typeSearch=='COMPANY'")
     table.custom-table
       thead
@@ -66,8 +66,9 @@ export default {
     };
   },
   methods: {
-    viewDetails(employeeId) {
-      this.$router.push({ name: "EmployeeDetail", params: { id: employeeId } });
+    viewDetails(registerId) {
+      //this.$router.push({ name: "EmployeeDetail", params: { id: employeeId } });
+      console.log(registerId);
     },
     getListData() {
       if (this.filteredData) {
@@ -78,6 +79,9 @@ export default {
     },
     formatDate(input) {
       return DateUtil.formatDate(input);
+    },
+    formatDateTime(input) {
+      return DateUtil.formatDateTime(input);
     },
     setCompany() {
       let that = this;
@@ -107,6 +111,7 @@ export default {
             if (response) {
               that.typeSearch='EMPLOYEE'
               that.filteredData = response;
+              that.filteredData.sort((a,b) => new Date(a.date) - new Date(b.date));
             }
           }
         );
@@ -116,6 +121,7 @@ export default {
           if (response) {
             that.typeSearch = 'COMPANY'
             that.filteredData = response;
+            that.filteredData.sort((a,b) => new Date(a.date) - new Date(b.date));
           }
         });
       } else {
@@ -134,6 +140,7 @@ export default {
     PointRegisterService.getAllRegisters().then((response) => {
       if (response) {
         that.data = response;
+        that.data.sort((a,b) => new Date(a.date) - new Date(b.date));
       }
     });
   },

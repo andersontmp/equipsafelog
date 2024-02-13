@@ -74,7 +74,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 
 		collect.entrySet().parallelStream().forEach(f -> {
 			ConcurrentHashMap<LocalDate, PointRegisterResultSearch> hashByDate = new ConcurrentHashMap<>();
-			f.getValue().parallelStream().forEach(t -> {
+			f.getValue().stream().forEach(t -> {
 				LocalDate localDate = LocalDate.of(t.getDate().get(Calendar.YEAR), t.getDate().get(Calendar.MONTH) + 1,
 						t.getDate().get(Calendar.DAY_OF_MONTH));
 				if (!hashByDate.containsKey(localDate)) {

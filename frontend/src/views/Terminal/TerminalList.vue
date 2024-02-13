@@ -11,11 +11,13 @@ div
         th Matricula
         th Ativo
         th Ultima Comunicação
+        th Empresa
     tbody
       tr(v-for="item in getListData()", :key="item.id", @click="viewDetails(item.id)")
         td {{ item.identity }}
         td {{ item.active }}
-        td {{ formatDate(item.lastCommunication) }}
+        td {{ formatDateTime(item.lastCommunication) }}
+        td {{ item.company.socialName }}
 </template>
 
 <script>
@@ -33,8 +35,9 @@ export default {
     };
   },
   methods: {
-    viewDetails(employeeId) {
-      this.$router.push({ name: "EmployeeDetail", params: { id: employeeId } });
+    viewDetails(terminalId) {
+      //this.$router.push({ name: "EmployeeDetail", params: { id: employeeId } });
+      console.log(terminalId)
     },
     getListData() {
       if (this.filteredData) {
@@ -58,8 +61,8 @@ export default {
     setCompany(){
       console.log(this.selectedCompany);
     },
-    formatDate(input){
-      return DateUtil.formatDate(input)
+    formatDateTime(input){
+      return DateUtil.formatDateTime(input)
     }
   },
   mounted() {

@@ -1,7 +1,6 @@
 package com.equipsafelog.core.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,10 +22,7 @@ public class TerminalController {
 
 	@GetMapping
 	public List<Terminal> getAllTerminals() {
-		return terminalService.getAllTerminals().parallelStream().map(f -> {
-			f.setCompany(null);
-			return f;
-		}).collect(Collectors.toList());
+		return terminalService.getAllTerminals();
 	}
 
 	@GetMapping(path = "/{id}")
@@ -41,9 +37,6 @@ public class TerminalController {
 	
 	@GetMapping(path = "/company/{id}")
 	public List<Terminal> getTerminalsByCompany(@PathVariable Long id) {
-		return terminalService.getTerminalsByCompany(id).parallelStream().map(f -> {
-			f.setCompany(null);
-			return f;
-		}).collect(Collectors.toList());
+		return terminalService.getTerminalsByCompany(id);
 	}
 }
