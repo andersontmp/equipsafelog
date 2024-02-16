@@ -7,7 +7,7 @@
       li(@click="selectOption('Empresa')" :class="{ active: selectedOption === 'Empresa' }") Empresa
       li(@click="selectOption('Conta')" :class="{ active: selectedOption === 'Conta' }") Conta
       li(@click="selectOption('Terminal')" :class="{ active: selectedOption === 'Terminal' }") Terminal
-      li(@click="selectOption('Controle de Uso')" :class="{ active: selectedOption === 'Controle de Uso' }") Controle de Uso
+      li(@click="selectOption('Controle de Uso')" :class="{ active: selectedOption === 'Controle de Uso' }") Controle de Usuario
       li(@click="selectOption('Perfil')" :class="{ active: selectedOption === 'Perfil' }") Perfil
       li(@click="selectOption('Registro de Utilização')" :class="{ active: selectedOption === 'Registro de Utilização' }") Registro de Utilização
 

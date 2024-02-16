@@ -58,6 +58,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 				Employee employee = getEmployee(inputEmployee.getId());
 				if (employee != null) {
 					employee.setActive(inputEmployee.getActive());
+					employee.setIdentity(inputEmployee.getIdentity());
 					if (inputEmployee.getCompany() != null && inputEmployee.getCompany().getId() != null) {
 						employee.setCompany(companyService.getCompany(inputEmployee.getCompany().getId()));
 					}

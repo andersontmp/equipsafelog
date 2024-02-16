@@ -1,5 +1,7 @@
 <template lang="pug">
-  div
+  div(v-if="!isDetail")
+    .d-flex.justify-content-start
+      button.btn.btn-success(type="button" @click="createEmployee" title="Adicionar Funcionario") +
     table.custom-table
       thead
         tr
@@ -9,32 +11,55 @@
         tr(v-for="item in data" :key="item.id" @click="viewDetails(item.id)")
           td {{ item.identity }}
           td {{ item.active }}
+  EmployeeDetail(v-if="isDetail" :id="employeeId" @closeDetail="closeDetail" @cancelDetail="cancelDetail")
 </template>
 
 <script>
-import axios from 'axios';
+import EmployeeDetail from './EmployeeDetail.vue';
+import EmployeeService from '@/components/services/EmployeeService';
 
 export default {
+  components: {
+    EmployeeDetail
+  },
   data() {
     return {
-      data: [] // Armazenará os dados obtidos do endpoint
+      data: [],
+      employeeId:'',
+      isDetail:false
     };
   },
   methods: {
     viewDetails(employeeId) {
       //this.$router.push({ name: 'employee', params: { id: employeeId } });
       console.info(employeeId);
-    }
-  },
-  mounted() {
-    let that = this;
-    axios.get("/api/equipsafelog/employee") // Use o endereço do endpoint da configuração
-      .then(response => {
-        that.data = response.data;
+      this.employeeId = employeeId;
+      this.isDetail = true;
+    },
+    createEmployee(){
+      this.employeeId = '';
+      this.isDetail = true;
+    },
+    closeDetail(){
+      this.isDetail = false;
+      this.populateEmployees();
+    },
+    cancelDetail(){
+      this.isDetail = false;
+    },
+    populateEmployees(){
+      let that = this;
+      EmployeeService.getAllEmployees().then(response => {
+        that.data = response;
+        that.data.sort((a,b) => a.identity - b.identity);
       })
       .catch(error => {
         console.error('Erro ao obter os dados dos funcionários:', error);
       });
+    }
+  },
+  mounted() {
+    this.populateEmployees();
   }
 };
 </script>
@@ -45,6 +70,7 @@ export default {
 }
 
 .custom-table {
+  margin-top: 5px;
   width: 100%;
   border-collapse: collapse;
 }

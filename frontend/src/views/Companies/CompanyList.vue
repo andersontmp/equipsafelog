@@ -1,5 +1,7 @@
 <template lang="pug">
-div
+div(v-if="!isDetail")
+  .d-flex.justify-content-start
+    button.btn.btn-success(type="button" @click="createCompany" title="Adicionar Empresa") +
   table.custom-table
     thead
       tr
@@ -8,31 +10,65 @@ div
         th Telefone
         th Responsavel
     tbody
-      tr(v-for="item in data", :key="item.id")
+      tr(v-for="item in data", :key="item.id", @click="viewDetails(item.id)")
         td {{ item.socialName }}
         td {{ item.cnpj }}
         td {{ item.phone }}
         td {{ item.responsable }}
+CompanyDetail(
+  v-if="isDetail",
+  :id="companyId",
+  @closeDetail="closeDetail",
+  @cancelDetail="cancelDetail"
+)
 </template>
   
   <script>
 import CompanyService from "@/components/services/CompanyService";
-
+import CompanyDetail from "./CompanyDetail.vue";
 export default {
+  components: {
+    CompanyDetail,
+  },
   data() {
     return {
-      data: [], // Armazenará os dados obtidos do endpoint
+      data: [],
+      companyId: "",
+      isDetail: false,
     };
   },
+  methods: {
+    viewDetails(companyId) {
+      //this.$router.push({ name: 'employee', params: { id: employeeId } });
+      console.info(companyId);
+      this.companyId = companyId;
+      this.isDetail = true;
+    },
+    createCompany(){
+      this.companyId = '';
+      this.isDetail = true;
+    },
+    closeDetail() {
+      this.isDetail = false;
+      this.populateCompanies();
+    },
+    cancelDetail() {
+      this.isDetail = false;
+    },
+    populateCompanies() {
+      let that = this;
+      CompanyService.getAllCompanies()
+        .then((response) => {
+          that.data = response;
+          that.data.sort((a,b) => a.socialName - b.socialName);
+        })
+        .catch((error) => {
+          console.error("Erro ao obter os dados das empresas:", error);
+        });
+    },
+  },
   mounted() {
-    let that = this;
-    CompanyService.getAllCompanies()
-      .then((response) => {
-        that.data = response;
-      })
-      .catch((error) => {
-        console.error("Erro ao obter os dados das empresas:", error);
-      });
+    this.populateCompanies();
   },
 };
 </script>
@@ -43,6 +79,7 @@ export default {
 }
 
 .custom-table {
+  margin-top: 5px;
   width: 100%;
   border-collapse: collapse;
 }
