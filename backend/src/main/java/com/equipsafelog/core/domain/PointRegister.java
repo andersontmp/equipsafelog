@@ -1,6 +1,7 @@
 package com.equipsafelog.core.domain;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +33,7 @@ public class PointRegister {
 	private Terminal terminal;
 	
 	@Column(name = "date")
-	private Calendar date;
+	private Date date;
 
 	public Long getId() {
 		return id;
@@ -42,11 +43,11 @@ public class PointRegister {
 		this.id = id;
 	}
 
-	public Calendar getDate() {
+	public Date getDate() {
 		return date;
 	}
 
-	public void setDate(Calendar date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 	

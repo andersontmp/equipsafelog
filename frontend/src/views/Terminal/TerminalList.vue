@@ -1,9 +1,13 @@
 <template lang="pug">
-div
-  span.custom-span Selecione a empresa
-  select.custom-span(v-model="selectedCompany" @change="setCompany")
-    option(key="", value="")
-    option(v-for="item in companiesList", :key="item.id", :value="item.id") {{ item.socialName }}
+div(v-if="!isDetail")
+  .d-flex.justify-content-start
+    button.btn.btn-success(type="button" @click="createTerminal" title="Adicionar Terminal") +
+  .input-group
+    span.custom-span.me-5 Pesquisa
+    span.custom-span.me-2 Empresa
+    select.custom-span(v-model="selectedCompany" @change="setCompany")
+      option(key="", value="")
+      option(v-for="item in companiesList", :key="item.id", :value="item.id") {{ item.socialName }}
   button(@click="filterList") Buscar
   table.custom-table
     thead
@@ -18,26 +22,48 @@ div
         td {{ item.active }}
         td {{ formatDateTime(item.lastCommunication) }}
         td {{ item.company.socialName }}
+TerminalDetailVue(
+  v-if="isDetail",
+  :id="terminalId",
+  @closeDetail="closeDetail",
+  @cancelDetail="cancelDetail")
 </template>
 
 <script>
 import CompanyService from "@/components/services/CompanyService";
 import TerminalService from "@/components/services/TerminalService";
 import DateUtil from "@/components/utils/DateUtil";
+import TerminalDetailVue from "./TerminalDetail.vue";
 
 export default {
+  components: {
+    TerminalDetailVue,
+  },
   data() {
     return {
       data: [],
       filteredData: undefined,
       selectedCompany: "",
       companiesList: [],
+      terminalId:"",
+      isDetail:false
     };
   },
   methods: {
     viewDetails(terminalId) {
-      //this.$router.push({ name: "EmployeeDetail", params: { id: employeeId } });
-      console.log(terminalId)
+      this.terminalId = terminalId;
+      this.isDetail = true;
+    },
+    closeDetail() {
+      this.isDetail = false;
+      this.populateTerminals();
+    },
+    cancelDetail() {
+      this.isDetail = false;
+    },
+    createTerminal(){
+      this.terminalId = '';
+      this.isDetail = true;
     },
     getListData() {
       if (this.filteredData) {
@@ -52,6 +78,7 @@ export default {
         TerminalService.getTerminalsByCompany(this.selectedCompany).then((response) => {
           if (response) {
             that.filteredData = response;
+            that.filteredData.sort(that.sortByIdentity);
           }
         });
       }else{
@@ -63,7 +90,28 @@ export default {
     },
     formatDateTime(input){
       return DateUtil.formatDateTime(input)
-    }
+    },
+    populateTerminals(){
+      let that = this;
+      TerminalService.getAllTerminals().then((response) => {
+      if (response) {
+        that.data = response;
+        that.data.sort(this.sortByIdentity);
+      }
+      });
+    },
+    sortByIdentity(a, b){
+      const identityA = a.identity.toUpperCase();
+      const identityB = b.identity.toUpperCase();
+
+      if (identityA < identityB) {
+        return -1;
+      }
+      if (identityA > identityB) {
+          return 1;
+      }
+      return 0;
+      }
   },
   mounted() {
     let that = this;
@@ -72,11 +120,7 @@ export default {
         that.companiesList = response;
       }
     });
-    TerminalService.getAllTerminals().then((response) => {
-      if (response) {
-        that.data = response;
-      }
-    });
+    this.populateTerminals();
   },
 };
 </script>

@@ -16,4 +16,10 @@ public interface PointRegisterService {
 
 	List<PointRegister> getRegistersByEmployee(PointRegisterCriteriaSearch criteria);
 
+	PointRegister getRegisterById(Long registerId);
+
+	PointRegister updateDatePointRegister(PointRegister inputPoint);
+
+	List<PointRegisterResultSearch> findInconsistencyByCriteria(PointRegisterCriteriaSearch criteria);
+
 }

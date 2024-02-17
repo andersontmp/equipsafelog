@@ -1,6 +1,6 @@
 package com.equipsafelog.core.domain;
 
-import java.util.Calendar;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -34,11 +34,11 @@ public class Terminal {
 	private Company company;
 
 	@Column(name = "lastCommunication")
-	private Calendar lastCommunication;
+	private Date lastCommunication;
 
 	@Column(name = "createDate")
-	private Calendar createDate;
-	
+	private Date createDate;
+
 	@Column(name = "active")
 	private Boolean active;
 
@@ -66,19 +66,19 @@ public class Terminal {
 		this.company = company;
 	}
 
-	public Calendar getLastCommunication() {
+	public Date getLastCommunication() {
 		return lastCommunication;
 	}
 
-	public void setLastCommunication(Calendar lastCommunication) {
+	public void setLastCommunication(Date lastCommunication) {
 		this.lastCommunication = lastCommunication;
 	}
 
-	public Calendar getCreateDate() {
+	public Date getCreateDate() {
 		return createDate;
 	}
 
-	public void setCreateDate(Calendar createDate) {
+	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
 
@@ -89,5 +89,5 @@ public class Terminal {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
-	
+
 }

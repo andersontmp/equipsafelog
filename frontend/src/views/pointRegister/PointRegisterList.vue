@@ -1,6 +1,7 @@
 <template lang="pug">
 div
-  div
+  .input-group(v-if="!isDetail")
+    span.custom-span.me-5 Pesquisa
     span.custom-span Empresa
     select.custom-span(v-model="selectedCompany", @change="setCompany")
       option(key="", value="")
@@ -9,13 +10,23 @@ div
     select.custom-span(v-model="selectedEmployee")
       option(key="", value="")
       option(v-for="item in employeeList", :key="item.id", :value="item.id") {{ item.identity }}
-  .container(style="{ display: 'flex' }")
     span.custom-span Data Inicio
-    datepicker(v-model="startDate")
+    datepicker#dpStartDate.styleDate.me-2(
+      v-model="startDate",
+      autoApply,
+      :clearable="false",
+      :format="formatDate"
+    )
     span.custom-span Data Fim
-    datepicker(v-model="endDate")
+    datepicker#dpEndDate.styleDate.me-2(
+      v-model="endDate",
+      autoApply,
+      :clearable="false",
+      :format="formatDate"
+    )
     button.custom-span(@click="filterList") Buscar
-  div(v-if="typeSearch=='EMPLOYEE'")
+    button.custom-span(@click="inconsistencyList" :disabled="selectedCompany == ''") Inconsistencias
+  div(v-if="typeSearch == 'EMPLOYEE' && !isDetail")
     table.custom-table
       thead
         tr
@@ -23,11 +34,15 @@ div
           th Terminal
           th Data
       tbody
-        tr(v-for="item in getListData()", :key="item.id", @click="viewDetails(item.id)")
+        tr(
+          v-for="item in getListData()",
+          :key="item.id",
+          @click="viewDetails(item.id)"
+        )
           td {{ item.employee.identity }}
           td {{ item.terminal.identity }}
           td {{ formatDateTime(item.date) }}
-  div(v-if="typeSearch=='COMPANY'")
+  div(v-if="typeSearch == 'COMPANY' && !isDetail")
     table.custom-table
       thead
         tr
@@ -35,22 +50,34 @@ div
           th Data
           th Quantidade
       tbody
-        tr(v-for="item in getListData()", :key="item.id", @click="viewDetails(item.id)")
+        tr(
+          v-for="item in getListData()",
+          :key="item.id",
+          @click="detailRegister(item)"
+        )
           td {{ item.employeeIdentity }}
           td {{ formatDate(item.date) }}
           td {{ item.quantity }}
+  PointRegisterDetail(
+    v-if="isDetail",
+    :id="registerId",
+    @closeDetail="closeDetail",
+    @cancelDetail="cancelDetail"
+  )
 </template>
 
 <script>
 import DateUtil from "@/components/utils/DateUtil";
 import PointRegisterService from "@/components/services/PointRegisterService";
 import CompanyService from "@/components/services/CompanyService";
-import Datepicker from "vue3-datepicker";
 import EmployeeService from "@/components/services/EmployeeService";
+import PointRegisterDetail from "./PointRegisterDetail.vue";
+import Datepicker from "@vuepic/vue-datepicker";
 
 export default {
   components: {
     Datepicker,
+    PointRegisterDetail,
   },
   data() {
     return {
@@ -62,13 +89,37 @@ export default {
       employeeList: [],
       startDate: new Date(),
       endDate: new Date(),
-      typeSearch:'EMPLOYEE'
+      typeSearch: "EMPLOYEE",
+      registerId: "",
+      isDetail: false,
     };
   },
   methods: {
+    detailRegister(register) {
+      let that = this;
+      let criteria = {
+        start: register.date,
+        end: register.date,
+        employeeId: register.employeeId,
+      };
+      PointRegisterService.getRegistersByEmployee(criteria).then((response) => {
+        if (response) {
+          that.typeSearch = "EMPLOYEE";
+          that.filteredData = response;
+          that.filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+      });
+    },
     viewDetails(registerId) {
-      //this.$router.push({ name: "EmployeeDetail", params: { id: employeeId } });
-      console.log(registerId);
+      this.registerId = registerId;
+      this.isDetail = true;
+    },
+    closeDetail() {
+      this.isDetail = false;
+      this.populateRegisters();
+    },
+    cancelDetail() {
+      this.isDetail = false;
     },
     getListData() {
       if (this.filteredData) {
@@ -86,16 +137,35 @@ export default {
     setCompany() {
       let that = this;
       this.selectedEmployee = undefined;
-      if(this.selectedCompany != ''){
-        EmployeeService.getEmployeeByCompany(this.selectedCompany).then(
+      if (this.selectedCompany != "") {
+        EmployeeService.getEmployeeByCompany(this.selectedCompany, false).then(
           (response) => {
             if (response) {
               that.employeeList = response;
             }
           }
         );
-      }else{
-        that.employeeList = []; 
+      } else {
+        that.employeeList = [];
+      }
+    },
+    inconsistencyList(){
+      let that = this;
+      let criteria = {
+        start: this.startDate,
+        end: this.endDate,
+      };
+      if (this.selectedCompany) {
+        criteria.companyId = this.selectedCompany;
+        PointRegisterService.findInconsistencyByCriteria(criteria).then((response) => {
+          if (response) {
+            that.typeSearch = "COMPANY";
+            that.filteredData = response;
+            that.filteredData.sort(
+              (a, b) => new Date(a.date) - new Date(b.date)
+            );
+          }
+        });
       }
     },
     filterList() {
@@ -109,9 +179,11 @@ export default {
         PointRegisterService.getRegistersByEmployee(criteria).then(
           (response) => {
             if (response) {
-              that.typeSearch='EMPLOYEE'
+              that.typeSearch = "EMPLOYEE";
               that.filteredData = response;
-              that.filteredData.sort((a,b) => new Date(a.date) - new Date(b.date));
+              that.filteredData.sort(
+                (a, b) => new Date(a.date) - new Date(b.date)
+              );
             }
           }
         );
@@ -119,15 +191,32 @@ export default {
         criteria.companyId = this.selectedCompany;
         PointRegisterService.findByCriteria(criteria).then((response) => {
           if (response) {
-            that.typeSearch = 'COMPANY'
+            that.typeSearch = "COMPANY";
             that.filteredData = response;
-            that.filteredData.sort((a,b) => new Date(a.date) - new Date(b.date));
+            that.filteredData.sort(
+              (a, b) => new Date(a.date) - new Date(b.date)
+            );
           }
         });
       } else {
-        that.typeSearch = 'EMPLOYEE';
+        that.typeSearch = "EMPLOYEE";
         that.filteredData = undefined;
       }
+    },
+    populateRegisters() {
+      let that = this;
+      PointRegisterService.getAllRegisters().then((response) => {
+        if (response) {
+          that.data = response;
+          that.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+      });
+    },
+    setStartAndEndDate() {
+      this.startDate.setDate(1);
+      this.endDate.setDate(1);
+      this.endDate.setMonth(this.endDate.getMonth() + 1);
+      this.endDate.setDate(this.endDate.getDate() - 1);
     },
   },
   mounted() {
@@ -137,12 +226,8 @@ export default {
         that.companiesList = response;
       }
     });
-    PointRegisterService.getAllRegisters().then((response) => {
-      if (response) {
-        that.data = response;
-        that.data.sort((a,b) => new Date(a.date) - new Date(b.date));
-      }
-    });
+    this.setStartAndEndDate();
+    this.populateRegisters();
   },
 };
 </script>
@@ -166,7 +251,8 @@ export default {
   border-collapse: collapse;
 }
 
-.custom-table th, .custom-table td {
+.custom-table th,
+.custom-table td {
   border: 1px solid #ddd; /* Define as bordas */
   padding: 8px; /* Adiciona espaçamento interno */
   text-align: left; /* Alinha o texto à esquerda */
@@ -174,5 +260,9 @@ export default {
 
 .custom-table th {
   background-color: #f2f2f2; /* Adiciona uma cor de fundo para os cabeçalhos */
+}
+
+.styleDate {
+  width: 150px;
 }
 </style>

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,12 +27,22 @@ public class PointRegisterController {
 	public List<PointRegister> getAllRegisters() {
 		return pointRegisterService.getAllRegisters();
 	}
+	
+	@GetMapping(path = "/{id}")
+	public PointRegister getRegisterById(@PathVariable Long id) {
+		return pointRegisterService.getRegisterById(id);
+	}
 
 	@PostMapping
 	public PointRegister updatePointRegister(@RequestBody PointRegister inputPoint) {
 		return pointRegisterService.savePointRegister(inputPoint);
 	}
-
+	
+	@PostMapping(path = "/updateDate")
+	public PointRegister updateDatePointRegister(@RequestBody PointRegister inputPoint) {
+		return pointRegisterService.updateDatePointRegister(inputPoint);
+	}
+	
 	@PostMapping(path = "/criteria")
 	public List<PointRegisterResultSearch> findByCriteria(@RequestBody PointRegisterCriteriaSearch criteria) {
 		return pointRegisterService.findByCriteria(criteria);
@@ -44,5 +55,10 @@ public class PointRegisterController {
 			f.getEmployee().setCompany(null);
 			return f;
 		}).collect(Collectors.toList());
+	}
+	
+	@PostMapping(path = "/inconsistency")
+	public List<PointRegisterResultSearch> findInconsistencyByCriteria(@RequestBody PointRegisterCriteriaSearch criteria) {
+		return pointRegisterService.findInconsistencyByCriteria(criteria);
 	}
 }

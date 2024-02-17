@@ -29,6 +29,12 @@ public class Company {
 	
 	@Column(name = "responsable")
 	private String responsable;
+	
+	@Column(name = "minimalUse")
+	private Integer minimalUse;
+	
+	@Column(name = "maximalUse")
+	private Integer maximalUse;
 
 	public Long getId() {
 		return id;
@@ -69,4 +75,21 @@ public class Company {
 	public void setResponsable(String responsable) {
 		this.responsable = responsable;
 	}
+
+	public Integer getMinimalUse() {
+		return minimalUse;
+	}
+
+	public void setMinimalUse(Integer minimalUse) {
+		this.minimalUse = minimalUse;
+	}
+
+	public Integer getMaximalUse() {
+		return maximalUse;
+	}
+
+	public void setMaximalUse(Integer maximalUse) {
+		this.maximalUse = maximalUse;
+	}
+	
 }

@@ -1,6 +1,6 @@
 package com.equipsafelog.core.service;
 
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +35,7 @@ public class TerminalServiceImpl implements TerminalService {
 				Terminal terminal = getTerminal(inputTerminal.getId());
 				if (terminal != null) {
 					terminal.setActive(inputTerminal.getActive());
+					terminal.setIdentity(inputTerminal.getIdentity());
 					if (inputTerminal.getCompany() != null && inputTerminal.getCompany().getId() != null) {
 						terminal.setCompany(companyService.getCompany(inputTerminal.getCompany().getId()));
 					}
@@ -47,7 +48,7 @@ public class TerminalServiceImpl implements TerminalService {
 					inputTerminal.setCompany(companyService.getCompany(inputTerminal.getCompany().getId()));
 				}
 				if(inputTerminal.getCreateDate() == null) {
-					inputTerminal.setCreateDate(Calendar.getInstance());
+					inputTerminal.setCreateDate(new Date());
 				}
 				return terminalRepository.save(inputTerminal);
 			}

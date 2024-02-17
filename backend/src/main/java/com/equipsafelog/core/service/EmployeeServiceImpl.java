@@ -1,6 +1,6 @@
 package com.equipsafelog.core.service;
 
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +87,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public List<Employee> getEmployeeByTerminal(Long terminalId) {
 		Terminal terminal = terminalService.getTerminal(terminalId);
 		if (terminal != null && terminal.getCompany() != null) {
-			terminal.setLastCommunication(Calendar.getInstance());
+			terminal.setLastCommunication(new Date());
 			terminalService.saveTerminal(terminal);
 			return employeeRepository.findByActiveAndCompanyId(true, terminal.getCompany().getId());
 		}

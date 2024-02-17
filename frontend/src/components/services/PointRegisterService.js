@@ -15,7 +15,19 @@ export default {
             });
         })
     },
-    findByCriteria(criteria){
+    getRegisterById(id) {
+        return new Promise((resolve, reject) => {
+            BaseWS.get(`${srvRegister}/` + id, { headers: { "Content-Type": "application/json" } }).then((response) => {
+                if (response) {
+                    resolve(response.data)
+                }
+            }).catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+        })
+    },
+    findByCriteria(criteria) {
         return new Promise((resolve, reject) => {
             BaseWS.post(`${srvRegister}/criteria`, criteria, { headers: { "Content-Type": "application/json" } }).then((response) => {
                 if (response) {
@@ -27,7 +39,7 @@ export default {
             });
         })
     },
-    getRegistersByEmployee(criteria){
+    getRegistersByEmployee(criteria) {
         return new Promise((resolve, reject) => {
             BaseWS.post(`${srvRegister}/employee`, criteria, { headers: { "Content-Type": "application/json" } }).then((response) => {
                 if (response) {
@@ -38,5 +50,29 @@ export default {
                 reject(error);
             });
         })
-    }
+    },
+    updateDatePointRegister(register) {
+        return new Promise((resolve, reject) => {
+            BaseWS.post(`${srvRegister}/updateDate`, register, { headers: { "Content-Type": "application/json" } }).then((response) => {
+                if (response) {
+                    resolve(response.data)
+                }
+            }).catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+        })
+    },
+    findInconsistencyByCriteria(criteria) {
+        return new Promise((resolve, reject) => {
+            BaseWS.post(`${srvRegister}/inconsistency`, criteria, { headers: { "Content-Type": "application/json" } }).then((response) => {
+                if (response) {
+                    resolve(response.data)
+                }
+            }).catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+        })
+    },
 }

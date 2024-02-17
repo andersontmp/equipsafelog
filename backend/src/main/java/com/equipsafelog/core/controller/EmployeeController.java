@@ -23,10 +23,7 @@ public class EmployeeController {
 
 	@GetMapping
 	public List<Employee> getAllEmployees() {
-		return employeeService.getAllEmployees().parallelStream().map(f -> {
-			f.setCompany(null);
-			return f;
-		}).collect(Collectors.toList());
+		return employeeService.getAllEmployees();
 	}
 
 	@GetMapping(path = "/{id}")
@@ -39,13 +36,17 @@ public class EmployeeController {
 		return employeeService.saveEmployee(inputEmployee);
 	}
 
-	@GetMapping(path = "/company/{companyId}")
-	public List<Employee> getEmployeeByCompany(@PathVariable Long companyId) {
-		return employeeService.getEmployeeByCompany(companyId).parallelStream().map(f -> {
-			f.setCompany(null);
-			f.setActive(null);
-			return f;
-		}).collect(Collectors.toList());
+	@GetMapping(path = "/company/{companyId}/{loadAllData}")
+	public List<Employee> getEmployeeByCompany(@PathVariable Long companyId, @PathVariable Boolean loadAllData) {
+		List<Employee> employeeByCompany = employeeService.getEmployeeByCompany(companyId);
+		if (!loadAllData) {
+			return employeeByCompany.parallelStream().map(f -> {
+				f.setCompany(null);
+				f.setActive(null);
+				return f;
+			}).collect(Collectors.toList());
+		}
+		return employeeByCompany;
 	}
 
 	@GetMapping(path = "/terminal/{terminalId}")

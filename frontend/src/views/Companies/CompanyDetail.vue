@@ -17,7 +17,6 @@ form.needs-validation(@submit.prevent="submitForm")
         input#cnpj.form-control(
           type="text",
           v-model="company.cnpj",
-          v-mask="'##.###.###/####-##'",
           placeholder="00.000.000/0000-00",
           required
         )
@@ -42,6 +41,26 @@ form.needs-validation(@submit.prevent="submitForm")
           required
         )
         .invalid-feedback Telefone é obrigatório
+  .row.mb-3
+    .col-md-6
+      .form-group
+        label.form-label(for="minimalUse") Uso mínimo:
+        input#minimalUse.form-control(
+          type="text",
+          v-model="company.minimalUse",
+          required
+        )
+        .invalid-feedback Uso mínimo é obrigatorio
+  .row.mb-3
+    .col-md-6
+      .form-group
+        label.form-label(for="maximalUse") Uso maximo:
+        input#maximalUse.form-control(
+          type="text",
+          v-model="company.maximalUse",
+          required
+        )
+        .invalid-feedback Uso máximo é obrigatório
   button.btn.btn-primary(type="submit") Salvar
   button.btn.btn-secundary(type="cancel", @click="cancelDetail") Cancelar
 </template>

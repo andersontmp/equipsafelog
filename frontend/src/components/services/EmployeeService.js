@@ -27,9 +27,9 @@ export default {
             });
         })
     },
-    getEmployeeByCompany(companyId) {
+    getEmployeeByCompany(companyId, loadAllData) {
         return new Promise((resolve, reject) => {
-            BaseWS.get(`${srvEmployee}/company/` + companyId, { headers: { "Content-Type": "application/json" } }).then((response) => {
+            BaseWS.get(`${srvEmployee}/company/` + companyId + '/' + loadAllData, { headers: { "Content-Type": "application/json" } }).then((response) => {
                 if (response) {
                     resolve(response.data)
                 }
