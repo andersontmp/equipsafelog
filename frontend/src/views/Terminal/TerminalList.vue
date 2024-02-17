@@ -8,7 +8,7 @@ div(v-if="!isDetail")
     select.custom-span(v-model="selectedCompany" @change="setCompany")
       option(key="", value="")
       option(v-for="item in companiesList", :key="item.id", :value="item.id") {{ item.socialName }}
-  button(@click="filterList") Buscar
+    button(@click="filterList") Buscar
   table.custom-table
     thead
       tr

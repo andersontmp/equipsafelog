@@ -204,13 +204,7 @@ export default {
       }
     },
     populateRegisters() {
-      let that = this;
-      PointRegisterService.getAllRegisters().then((response) => {
-        if (response) {
-          that.data = response;
-          that.data.sort((a, b) => new Date(a.date) - new Date(b.date));
-        }
-      });
+      this.data = [];
     },
     setStartAndEndDate() {
       this.startDate.setDate(1);

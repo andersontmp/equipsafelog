@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +18,6 @@ import com.equipsafelog.core.domain.Employee;
 import com.equipsafelog.core.domain.PointRegister;
 import com.equipsafelog.core.to.PointRegisterCriteriaSearch;
 import com.equipsafelog.core.to.PointRegisterResultSearch;
-import com.equipsafelog.repository.EmployeeRepository;
 import com.equipsafelog.repository.PointRegisterRepository;
 
 @Service
@@ -29,7 +27,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 	private PointRegisterRepository pointRegisterRepository;
 
 	@Autowired
-	private EmployeeRepository employeeRepository;
+	private EmployeeService employeeService;
 
 	@Autowired
 	private TerminalService terminalService;
@@ -50,8 +48,10 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 	@Override
 	public PointRegister savePointRegister(@RequestBody PointRegister inputPoint) {
 		if (inputPoint != null && inputPoint.getEmployee() != null) {
-			Employee employee = employeeRepository.findById(inputPoint.getEmployee().getId())
-					.orElseThrow(() -> new RuntimeException("Empregado inexistente"));
+			Employee employee = employeeService.getEmployee(inputPoint.getEmployee().getId());
+			if(employee == null) {
+				throw new RuntimeException("Empregado inexistente");
+			}
 			PointRegister point = new PointRegister();
 			point.setEmployee(employee);
 			if (inputPoint.getTerminal() != null && inputPoint.getTerminal().getId() != null) {
@@ -110,6 +110,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 			});
 			syncList.addAll(hashByDate.values());
 		});
+		
 		if (company.getMinimalUse() != null && company.getMaximalUse() != null) {
 			return syncList.parallelStream().filter(f -> {
 				return f.getQuantity().intValue() < company.getMinimalUse().intValue()
