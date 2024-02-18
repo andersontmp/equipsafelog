@@ -61,6 +61,9 @@ form.needs-validation(@submit.prevent="submitForm")
           required
         )
         .invalid-feedback Uso máximo é obrigatório
+  .form-check
+    label.form-label(for="weekendWork") Trabalha aos finais de semana
+    input#weekendWork.form-check-input(type="checkbox", v-model="company.weekendWork")
   button.btn.btn-primary(type="submit") Salvar
   button.btn.btn-secundary(type="cancel", @click="cancelDetail") Cancelar
 </template>

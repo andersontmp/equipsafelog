@@ -21,8 +21,7 @@
     TerminalListVue()
   div(v-else-if="selectedOption === 'Controle de Uso'")
     UserListVue()
-  div(v-else-if="selectedOption === 'Perfil'") 
-    PerfilListVue()
+  div(v-else-if="selectedOption === 'Perfil'") Conteúdo da opção Perfil
   div(v-else-if="selectedOption === 'Registro de Utilização'")
     PointRegisterListVue()
     

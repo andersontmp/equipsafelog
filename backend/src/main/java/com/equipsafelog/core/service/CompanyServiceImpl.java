@@ -26,6 +26,7 @@ public class CompanyServiceImpl implements CompanyService {
 					companyPersist.setSocialName(company.getSocialName());
 					companyPersist.setMinimalUse(company.getMinimalUse());
 					companyPersist.setMaximalUse(company.getMaximalUse());
+					companyPersist.setWeekendWork(company.getWeekendWork());
 					return companyRepository.save(companyPersist);
 				}
 			} else {

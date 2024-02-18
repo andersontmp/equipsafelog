@@ -9,12 +9,15 @@ div(v-if="!isDetail")
         th CNPJ
         th Telefone
         th Responsavel
+        th Detalhes
     tbody
-      tr(v-for="item in data", :key="item.id", @click="viewDetails(item.id)")
+      tr(v-for="item in data", :key="item.id")
         td {{ item.socialName }}
         td {{ item.cnpj }}
         td {{ item.phone }}
         td {{ item.responsable }}
+        td
+          button.btn.btn-warning.btn-sm(type="button" @click="viewDetails(item.id)" title="Editar") >
 CompanyDetail(
   v-if="isDetail",
   :id="companyId",
@@ -77,7 +80,7 @@ export default {
           return 1;
       }
       return 0;
-      }
+    }
   },
   mounted() {
     this.populateCompanies();
@@ -99,7 +102,7 @@ export default {
 .custom-table th,
 .custom-table td {
   border: 1px solid #ddd; /* Define as bordas */
-  padding: 8px; /* Adiciona espaçamento interno */
+  padding-left: 8px; /* Adiciona espaçamento interno */
   text-align: left; /* Alinha o texto à esquerda */
 }
 

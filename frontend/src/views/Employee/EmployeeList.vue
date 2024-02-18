@@ -19,15 +19,17 @@ div(v-if="!isDetail")
         th Matricula
         th Ativo
         th Empresa
+        th Detalhes
     tbody
       tr(
         v-for="item in getListData()",
-        :key="item.id",
-        @click="viewDetails(item.id)"
+        :key="item.id"
       )
         td {{ item.identity }}
         td {{ item.active }}
         td {{ item.company.socialName }}
+        td
+          button.btn.btn-warning.btn-sm(type="button" @click="viewDetails(item.id)" title="Editar") >
 EmployeeDetail(
   v-if="isDetail",
   :id="employeeId",
@@ -74,6 +76,7 @@ export default {
     closeDetail() {
       this.isDetail = false;
       this.populateEmployees();
+      this.filterList();
     },
     cancelDetail() {
       this.isDetail = false;
@@ -143,7 +146,7 @@ export default {
 .custom-table th,
 .custom-table td {
   border: 1px solid #ddd; /* Define as bordas */
-  padding: 8px; /* Adiciona espaçamento interno */
+  padding-left: 8px; /* Adiciona espaçamento interno */
   text-align: left; /* Alinha o texto à esquerda */
 }
 

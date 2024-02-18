@@ -35,6 +35,9 @@ public class Company {
 	
 	@Column(name = "maximalUse")
 	private Integer maximalUse;
+	
+	@Column(name= "weekendWork")
+	private Boolean weekendWork;
 
 	public Long getId() {
 		return id;
@@ -90,6 +93,14 @@ public class Company {
 
 	public void setMaximalUse(Integer maximalUse) {
 		this.maximalUse = maximalUse;
+	}
+
+	public Boolean getWeekendWork() {
+		return weekendWork;
+	}
+
+	public void setWeekendWork(Boolean weekendWork) {
+		this.weekendWork = weekendWork;
 	}
 	
 }

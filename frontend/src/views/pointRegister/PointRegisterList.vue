@@ -10,19 +10,12 @@ div
     select.custom-span(v-model="selectedEmployee")
       option(key="", value="")
       option(v-for="item in employeeList", :key="item.id", :value="item.id") {{ item.identity }}
-    span.custom-span Data Inicio
+    span.custom-span Mes
     datepicker#dpStartDate.styleDate.me-2(
       v-model="startDate",
       autoApply,
       :clearable="false",
-      :format="formatDate"
-    )
-    span.custom-span Data Fim
-    datepicker#dpEndDate.styleDate.me-2(
-      v-model="endDate",
-      autoApply,
-      :clearable="false",
-      :format="formatDate"
+      month-picker
     )
     button.custom-span(@click="filterList") Buscar
     button.custom-span(@click="inconsistencyList" :disabled="selectedCompany == ''") Inconsistencias
@@ -33,15 +26,18 @@ div
           th Empregado
           th Terminal
           th Data
+          th Detalhes
       tbody
         tr(
           v-for="item in getListData()",
           :key="item.id",
-          @click="viewDetails(item.id)"
+          
         )
           td {{ item.employee.identity }}
           td {{ item.terminal.identity }}
           td {{ formatDateTime(item.date) }}
+          td
+            button.btn.btn-warning.btn-sm(type="button" @click="viewDetails(item.id)" title="Editar") >
   div(v-if="typeSearch == 'COMPANY' && !isDetail")
     table.custom-table
       thead
@@ -49,15 +45,18 @@ div
           th Empregado
           th Data
           th Quantidade
+          th Listar
       tbody
         tr(
           v-for="item in getListData()",
           :key="item.id",
-          @click="detailRegister(item)"
+          
         )
           td {{ item.employeeIdentity }}
           td {{ formatDate(item.date) }}
           td {{ item.quantity }}
+          td
+            button.btn.btn-success.btn-sm(type="button" @click="detailRegister(item)" title="Listar" :disabled="item.quantity <= 0") >
   PointRegisterDetail(
     v-if="isDetail",
     :id="registerId",
@@ -87,8 +86,7 @@ export default {
       companiesList: [],
       selectedEmployee: "",
       employeeList: [],
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: null,
       typeSearch: "EMPLOYEE",
       registerId: "",
       isDetail: false,
@@ -142,6 +140,7 @@ export default {
           (response) => {
             if (response) {
               that.employeeList = response;
+              that.employeeList.sort(this.sortByIdentity);
             }
           }
         );
@@ -149,12 +148,48 @@ export default {
         that.employeeList = [];
       }
     },
+    sortBySocialName(a, b){
+      const strA = a.socialName.toUpperCase();
+      const strB = b.socialName.toUpperCase();
+
+      if (strA < strB) {
+        return -1;
+      }
+      if (strA > strB) {
+          return 1;
+      }
+      return 0;
+    },
+    sortByIdentity(a, b){
+      const strA = a.identity.toUpperCase();
+      const strB = b.identity.toUpperCase();
+
+      if (strA < strB) {
+        return -1;
+      }
+      if (strA > strB) {
+          return 1;
+      }
+      return 0;
+    },
+    mountCriteria(){
+      let criteria = {
+        start: new Date(),
+        end: new Date(),
+      };
+      criteria.start.setFullYear(this.startDate.year);
+      criteria.start.setMonth(this.startDate.month);
+      criteria.start.setDate(1);
+
+      criteria.end.setFullYear(this.startDate.year);
+      criteria.end.setMonth(this.startDate.month +1);
+      criteria.end.setDate(1);
+      criteria.end.setDate(criteria.end.getDate() - 1);
+      return criteria;
+    },
     inconsistencyList(){
       let that = this;
-      let criteria = {
-        start: this.startDate,
-        end: this.endDate,
-      };
+      let criteria = this.mountCriteria();
       if (this.selectedCompany) {
         criteria.companyId = this.selectedCompany;
         PointRegisterService.findInconsistencyByCriteria(criteria).then((response) => {
@@ -170,10 +205,8 @@ export default {
     },
     filterList() {
       let that = this;
-      let criteria = {
-        start: this.startDate,
-        end: this.endDate,
-      };
+      let criteria = this.mountCriteria();
+
       if (this.selectedEmployee) {
         criteria.employeeId = this.selectedEmployee;
         PointRegisterService.getRegistersByEmployee(criteria).then(
@@ -206,22 +239,20 @@ export default {
     populateRegisters() {
       this.data = [];
     },
-    setStartAndEndDate() {
-      this.startDate.setDate(1);
-      this.endDate.setDate(1);
-      this.endDate.setMonth(this.endDate.getMonth() + 1);
-      this.endDate.setDate(this.endDate.getDate() - 1);
-    },
   },
   mounted() {
     let that = this;
     CompanyService.getAllCompanies().then((response) => {
       if (response) {
         that.companiesList = response;
+        that.companiesList.sort(that.sortBySocialName);
       }
     });
-    this.setStartAndEndDate();
     this.populateRegisters();
+    this.startDate ={
+      month: new Date().getMonth(),
+      year: new Date().getFullYear()
+    }
   },
 };
 </script>
@@ -248,7 +279,7 @@ export default {
 .custom-table th,
 .custom-table td {
   border: 1px solid #ddd; /* Define as bordas */
-  padding: 8px; /* Adiciona espaçamento interno */
+  padding-left: 8px; /* Adiciona espaçamento interno */
   text-align: left; /* Alinha o texto à esquerda */
 }
 
