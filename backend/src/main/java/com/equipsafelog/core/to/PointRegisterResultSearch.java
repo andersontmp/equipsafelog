@@ -7,6 +7,8 @@ public class PointRegisterResultSearch {
 	private Long employeeId;
 
 	private String employeeIdentity;
+	
+	private String employeeName;
 
 	private Calendar date;
 
@@ -42,5 +44,13 @@ public class PointRegisterResultSearch {
 
 	public void setQuantity(Long quantity) {
 		this.quantity = quantity;
+	}
+	
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
 	}
 }

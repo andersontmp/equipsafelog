@@ -37,6 +37,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 		return employeeRepository.findById(id).orElse(null);
 	}
 
+	private void validateEmployee(Employee e) throws Exception {
+		if (e.getCompany() == null) {
+			throw new Exception("COMPANY_REQUIRED");
+		}
+		if (e.getIdentity() == null) {
+			throw new Exception("IDENTIFY_REQUIRED");
+		}
+		List<Employee> employees = employeeRepository.findByCompanyIdAndIdentityIgnoreCase(e.getCompany().getId(),
+				e.getIdentity());
+		if (employees != null && !employees.isEmpty()) {
+			if (e.getId() != null) {
+				if (employees.stream().filter(f -> !f.getId().equals(e.getId())).findAny().isPresent()) {
+					throw new Exception("IDENTIFY_ALREADY_EXISTS");
+				}
+			} else {
+				throw new Exception("IDENTIFY_ALREADY_EXISTS");
+			}
+		}
+	}
+
 	private IDEmployee saveIDEmployee(IDEmployee idEmployee) {
 		if (idEmployee != null) {
 			String identity = idEmployee.getIdentity();
@@ -52,8 +72,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Employee saveEmployee(Employee inputEmployee) {
+	public Employee saveEmployee(Employee inputEmployee) throws Exception {
 		if (inputEmployee != null) {
+			validateEmployee(inputEmployee);
 			if (inputEmployee.getId() != null) {
 				Employee employee = getEmployee(inputEmployee.getId());
 				if (employee != null) {
@@ -93,7 +114,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public List<Employee> getEmployeeByCompany(Long companyId) {
 		return employeeRepository.findByCompanyId(companyId);

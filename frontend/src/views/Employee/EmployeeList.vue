@@ -25,7 +25,7 @@ div(v-if="!isDetail")
         v-for="item in getListData()",
         :key="item.id"
       )
-        td {{ item.identity }}
+        td {{ item.identity }} - {{ item.name }}
         td {{ item.active }}
         td {{ item.company.socialName }}
         td
@@ -118,13 +118,26 @@ export default {
           return 1;
       }
       return 0;
+      },
+    sortBySocialName(a, b){
+      const strA = a.socialName.toUpperCase();
+      const strB = b.socialName.toUpperCase();
+
+      if (strA < strB) {
+        return -1;
       }
+      if (strA > strB) {
+          return 1;
+      }
+      return 0;
+    }
   },
   mounted() {
     let that = this;
     CompanyService.getAllCompanies().then((response) => {
       if (response) {
         that.companiesList = response;
+        that.companiesList.sort(this.sortBySocialName);
       }
     });
     this.populateEmployees();

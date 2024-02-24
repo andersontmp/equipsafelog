@@ -10,7 +10,7 @@ public interface EmployeeService {
 
 	Employee getEmployee(Long id);
 
-	Employee saveEmployee(Employee inputEmployee);
+	Employee saveEmployee(Employee inputEmployee) throws Exception;
 
 	List<Employee> getEmployeeByTerminal(Long terminalId);
 

@@ -12,9 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "employee")
@@ -25,6 +25,9 @@ public class Employee {
 	@SequenceGenerator(name = "employee_seq", sequenceName = "employee_seq", allocationSize = 1)
 	@Column(name = "id")
 	private Long id;
+	
+	@Column
+	private String name;
 
 	@Column(name = "identity")
 	private String identity;
@@ -37,9 +40,11 @@ public class Employee {
 	@Column(name = "active")
 	private Boolean active;
 
-	@OneToOne
-	@JoinColumn(name = "id_employee", referencedColumnName = "id")
+	@Transient
 	private IDEmployee idEmployee;
+	
+	@Column(name = "id_employee")
+	private Long idEmployeeId;
 
 	public Long getId() {
 		return id;
@@ -79,6 +84,22 @@ public class Employee {
 
 	public void setIdEmployee(IDEmployee idEmployee) {
 		this.idEmployee = idEmployee;
+	}
+	
+	public Long getIdEmployeeId() {
+		return idEmployeeId;
+	}
+	
+	public void setIdEmployeeId(Long idEmployeeId) {
+		this.idEmployeeId = idEmployeeId;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override

@@ -14,4 +14,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
 	@Query
 	public List<Employee> findByCompanyId(Long companyId);
+	
+	@Query
+	public List<Employee> findByCompanyIdAndIdentityIgnoreCase(Long companyId, String identity);
 }

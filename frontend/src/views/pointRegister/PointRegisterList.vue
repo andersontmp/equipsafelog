@@ -33,7 +33,7 @@ div
           :key="item.id",
           
         )
-          td {{ item.employee.identity }}
+          td {{ item.employee.identity }} - {{ item.employee.name }}
           td {{ item.terminal.identity }}
           td {{ formatDateTime(item.date) }}
           td
@@ -52,7 +52,7 @@ div
           :key="item.id",
           
         )
-          td {{ item.employeeIdentity }}
+          td {{ item.employeeIdentity }} - {{ item.employeeName }}
           td {{ formatDate(item.date) }}
           td {{ item.quantity }}
           td
@@ -127,7 +127,7 @@ export default {
       }
     },
     formatDate(input) {
-      return DateUtil.formatDate(input);
+      return DateUtil.formatDateWithWeek(input);
     },
     formatDateTime(input) {
       return DateUtil.formatDateTime(input);
@@ -190,8 +190,9 @@ export default {
     inconsistencyList(){
       let that = this;
       let criteria = this.mountCriteria();
-      if (this.selectedCompany) {
+      if (this.selectedCompany || this.selectedEmployee) {
         criteria.companyId = this.selectedCompany;
+        criteria.employeeId = this.selectedEmployee;
         PointRegisterService.findInconsistencyByCriteria(criteria).then((response) => {
           if (response) {
             that.typeSearch = "COMPANY";

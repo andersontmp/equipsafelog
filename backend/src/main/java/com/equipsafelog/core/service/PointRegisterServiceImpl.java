@@ -79,14 +79,34 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 
 	@Override
 	public List<PointRegisterResultSearch> findInconsistencyByCriteria(PointRegisterCriteriaSearch criteria) {
-		Company company = companyService.getCompany(criteria.getCompanyId());
-		List<PointRegisterResultSearch> syncList = findByCriteria(criteria,
-				company.getWeekendWork() != null ? company.getWeekendWork() : false);
+		List<PointRegister> findByCriteria = new ArrayList<>();
+		clearHours(criteria);
+
+		Company company = new Company();
+		if (criteria.getCompanyId() != null) {
+			company = companyService.getCompany(criteria.getCompanyId());
+		} else if (criteria.getEmployeeId() != null) {
+			Employee employee = employeeService.getEmployee(criteria.getEmployeeId());
+			if (employee != null) {
+				company = employee.getCompany();
+			}
+		}
+		if (criteria.getEmployeeId() != null) {
+			findByCriteria = pointRegisterRepository.findByEmployeeAndDates(criteria.getEmployeeId(),
+					criteria.getStart(), criteria.getEnd());
+		} else if (criteria.getCompanyId() != null) {
+			findByCriteria = pointRegisterRepository.findByCriteria(true, criteria.getCompanyId(), criteria.getStart(),
+					criteria.getEnd());
+		}
+		List<PointRegisterResultSearch> syncList = mountResult(findByCriteria, company.getId(), criteria.getStart(),
+				criteria.getEnd(), company.getWeekendWork());
 
 		if (company.getMinimalUse() != null && company.getMaximalUse() != null) {
+			Integer minimalUse = company.getMinimalUse();
+			Integer maximalUse = company.getMaximalUse();
 			return syncList.parallelStream().filter(f -> {
-				return f.getQuantity().intValue() < company.getMinimalUse().intValue()
-						|| f.getQuantity().intValue() > company.getMaximalUse().intValue();
+				return f.getQuantity().intValue() < minimalUse.intValue()
+						|| f.getQuantity().intValue() > maximalUse.intValue();
 			}).collect(Collectors.toList());
 		} else {
 			return syncList;
@@ -98,20 +118,18 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 		return findByCriteria(criteria, false);
 	}
 
-	private List<PointRegisterResultSearch> findByCriteria(PointRegisterCriteriaSearch criteria, Boolean weekendWork) {
-		clearHours(criteria);
-		List<PointRegister> findByCriteria = pointRegisterRepository.findByCriteria(true, criteria.getCompanyId(),
-				criteria.getStart(), criteria.getEnd());
+	private List<PointRegisterResultSearch> mountResult(List<PointRegister> findByCriteria, Long companyId,
+			Calendar start, Calendar end, Boolean weekendWork) {
 		Map<Employee, List<PointRegister>> collect = findByCriteria.stream()
 				.collect(Collectors.groupingBy(f -> f.getEmployee()));
 		List<PointRegisterResultSearch> syncList = Collections.synchronizedList(new ArrayList<>());
 
 		ConcurrentHashMap<Employee, ConcurrentHashMap<LocalDate, PointRegisterResultSearch>> map = new ConcurrentHashMap<>();
-		List<Employee> employeeByCompany = employeeService.getEmployeeByCompany(criteria.getCompanyId());
+		List<Employee> employeeByCompany = employeeService.getEmployeeByCompany(companyId);
 		employeeByCompany.parallelStream().forEach(c -> {
 			map.put(c, new ConcurrentHashMap<>());
-			Calendar startDate = (Calendar) criteria.getStart().clone();
-			while (startDate.before(criteria.getEnd()) || startDate.before(Calendar.getInstance())) {
+			Calendar startDate = (Calendar) start.clone();
+			while (startDate.before(end) || startDate.before(Calendar.getInstance())) {
 				if (!weekendWork && (startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
 						|| startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)) {
 					startDate.add(Calendar.DATE, 1);
@@ -131,6 +149,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 				res.setQuantity(0L);
 				res.setEmployeeId(c.getId());
 				res.setEmployeeIdentity(c.getIdentity());
+				res.setEmployeeName(c.getName());
 				map.get(c).put(localDate, res);
 
 				startDate.add(Calendar.DATE, 1);
@@ -146,6 +165,14 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 			syncList.addAll(map.get(f.getKey()).values());
 		});
 		return syncList;
+	}
+
+	private List<PointRegisterResultSearch> findByCriteria(PointRegisterCriteriaSearch criteria, Boolean weekendWork) {
+		clearHours(criteria);
+		List<PointRegister> findByCriteria = pointRegisterRepository.findByCriteria(true, criteria.getCompanyId(),
+				criteria.getStart(), criteria.getEnd());
+		return mountResult(findByCriteria, criteria.getCompanyId(), criteria.getStart(), criteria.getEnd(),
+				weekendWork);
 	}
 
 	@Override

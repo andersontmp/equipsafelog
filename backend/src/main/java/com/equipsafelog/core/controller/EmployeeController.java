@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.equipsafelog.core.domain.Employee;
 import com.equipsafelog.core.service.EmployeeService;
+import com.equipsafelog.core.to.ResponseObjectVO;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/employee")
@@ -32,8 +35,14 @@ public class EmployeeController {
 	}
 
 	@PostMapping
-	public Employee saveEmployee(@RequestBody Employee inputEmployee) {
-		return employeeService.saveEmployee(inputEmployee);
+	public ResponseObjectVO saveEmployee(HttpServletResponse response, @RequestBody Employee inputEmployee)  {
+		ResponseObjectVO respObj = new ResponseObjectVO();
+		try {
+			respObj.setObject(employeeService.saveEmployee(inputEmployee));
+		} catch (Exception e) {
+			respObj.setErrorCode(e.getMessage());
+		}
+		return respObj;
 	}
 
 	@GetMapping(path = "/company/{companyId}/{loadAllData}")

@@ -10,7 +10,14 @@ form.needs-validation(@submit.prevent="submitForm")
           required
         )
         .invalid-feedback Matricula é obrigatória
+  .row.mb-3
+    .col-md-6
+      .form-group
+        label.form-label(for="name") Nome:
+        input#name.form-control(type="text", v-model="employee.name", required)
+        .invalid-feedback Nome é obrigatório
   .row.mb-3 
+    |
     |
     .col-md-6
       .form-group
@@ -29,18 +36,26 @@ form.needs-validation(@submit.prevent="submitForm")
   .form-check
     label.form-label(for="active") Ativo
     input#active.form-check-input(type="checkbox", v-model="employee.active")
-    
-  button.btn.btn-primary(type="submit" class="me-2") Salvar
-  button.btn.btn-secundary(type="cancel", @click="cancelDetail" class="me-2") Cancelar
-  //button.btn.btn-danger(type="button" @click="removeEmployee") Remover
+
+  button.btn.btn-primary.me-2(type="submit") Salvar
+  button.btn.btn-secundary.me-2(type="cancel", @click="cancelDetail") Cancelar
+  error-modal(
+    :error-message="errorMessage",
+   v-if="errorMessage",
+    @close="clearError"
+  )
 </template>
   
 <script>
 import EmployeeService from "@/components/services/EmployeeService";
 import CompanyService from "@/components/services/CompanyService";
+import ErrorModal from "../ErrorModal.vue";
 
 export default {
   props: ["id"],
+  components: {
+    ErrorModal
+  },
   data() {
     return {
       employee: {
@@ -52,6 +67,7 @@ export default {
         },
       },
       companiesList: [],
+      errorMessage: '',
     };
   },
   methods: {
@@ -59,16 +75,33 @@ export default {
       let that = this;
       EmployeeService.saveEmployee(this.employee)
         .then((response) => {
-          that.employee = response;
-          that.$emit("closeDetail", null);
+          if(response.errorCode){
+            that.errorMessage = that.showMessage(response.errorCode);
+          }else{
+            that.employee = response;
+            that.$emit("closeDetail", null);
+          }
         })
         .catch((error) => {
           console.error("Erro ao gravar os dados dos funcionários:", error);
         });
     },
+    showMessage(e){
+      switch(e){
+        case 'COMPANY_REQUIRED':
+          return 'Campo Empresa obrigatorio';
+        case 'IDENTIFY_REQUIRED':
+          return 'Campo Matricula obrigatorio';
+        case 'IDENTIFY_ALREADY_EXISTS':
+          return 'Matricula já cadastrada para essa empresa'
+      }
+    },
     cancelDetail() {
       this.$emit("cancelDetail", null);
     },
+    clearError() {
+      this.errorMessage = '';
+    }
   },
   created() {
     let that = this;

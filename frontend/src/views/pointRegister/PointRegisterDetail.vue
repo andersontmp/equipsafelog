@@ -26,7 +26,7 @@ form.needs-validation(@submit.prevent="submitForm")
     .col-md-6
       .form-group
         label.form-label(for="identity") Data:
-        datepicker#dpStartDate.me-2(v-model="register.date")
+        datepicker#dpStartDate.me-2(v-model="register.date" disabled)
   button.btn.btn-primary.me-2(type="submit") Salvar
   button.btn.btn-secundary.me-2(type="cancel", @click="cancelDetail") Cancelar
 </template>
