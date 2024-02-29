@@ -29,9 +29,9 @@ public class Terminal {
 	private String identity;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "company")
+	@JoinColumn(name = "sector")
 	@JsonIgnoreProperties(value = { "applications", "hibernateLazyInitializer" })
-	private Company company;
+	private Sector sector;
 
 	@Column(name = "lastCommunication")
 	private Date lastCommunication;
@@ -57,13 +57,13 @@ public class Terminal {
 	public void setIdentity(String identity) {
 		this.identity = identity;
 	}
-
-	public Company getCompany() {
-		return company;
+	
+	public Sector getSector() {
+		return sector;
 	}
-
-	public void setCompany(Company company) {
-		this.company = company;
+	
+	public void setSector(Sector sector) {
+		this.sector = sector;
 	}
 
 	public Date getLastCommunication() {

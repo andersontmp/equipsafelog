@@ -10,11 +10,11 @@ import com.equipsafelog.core.domain.Employee;
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
 	@Query
-	public List<Employee> findByActiveAndCompanyId(Boolean active, Long companyId);
+	public List<Employee> findByActiveAndSectorCompanyId(Boolean active, Long companyId);
 
 	@Query
-	public List<Employee> findByCompanyId(Long companyId);
+	public List<Employee> findBySectorCompanyId(Long companyId);
 	
 	@Query
-	public List<Employee> findByCompanyIdAndIdentityIgnoreCase(Long companyId, String identity);
+	public List<Employee> findBySectorCompanyIdAndIdentityIgnoreCase(Long companyId, String identity);
 }

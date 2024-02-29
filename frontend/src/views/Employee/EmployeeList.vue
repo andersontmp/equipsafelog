@@ -27,7 +27,7 @@ div(v-if="!isDetail")
       )
         td {{ item.identity }} - {{ item.name }}
         td {{ item.active }}
-        td {{ item.company.socialName }}
+        td {{ item.sector.company.socialName }}
         td
           button.btn.btn-warning.btn-sm(type="button" @click="viewDetails(item.id)" title="Editar") >
 EmployeeDetail(
@@ -86,7 +86,6 @@ export default {
       EmployeeService.getAllEmployees()
         .then((response) => {
           that.data = response;
-          that.data.sort(this.sortByIdentity);
         })
         .catch((error) => {
           console.error("Erro ao obter os dados dos funcionários:", error);
@@ -98,7 +97,6 @@ export default {
         EmployeeService.getEmployeeByCompany(this.selectedCompany, true)
           .then((response) => {
             that.filteredData = response;
-            that.filteredData.sort(this.sortByIdentity);
           })
           .catch((error) => {
             console.error("Erro ao obter os dados dos funcionários:", error);
@@ -107,37 +105,12 @@ export default {
         that.filteredData = undefined;
       }
     },
-    sortByIdentity(a, b){
-      const strA = a.identity.toUpperCase();
-      const strB = b.identity.toUpperCase();
-
-      if (strA < strB) {
-        return -1;
-      }
-      if (strA > strB) {
-          return 1;
-      }
-      return 0;
-      },
-    sortBySocialName(a, b){
-      const strA = a.socialName.toUpperCase();
-      const strB = b.socialName.toUpperCase();
-
-      if (strA < strB) {
-        return -1;
-      }
-      if (strA > strB) {
-          return 1;
-      }
-      return 0;
-    }
   },
   mounted() {
     let that = this;
     CompanyService.getAllCompanies().then((response) => {
       if (response) {
         that.companiesList = response;
-        that.companiesList.sort(this.sortBySocialName);
       }
     });
     this.populateEmployees();

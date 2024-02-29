@@ -16,7 +16,7 @@ public class TerminalServiceImpl implements TerminalService {
 	private TerminalRepository terminalRepository;
 
 	@Autowired
-	private CompanyService companyService;
+	private SectorService sectorService;
 
 	@Override
 	public List<Terminal> getAllTerminals() {
@@ -36,18 +36,18 @@ public class TerminalServiceImpl implements TerminalService {
 				if (terminal != null) {
 					terminal.setActive(inputTerminal.getActive());
 					terminal.setIdentity(inputTerminal.getIdentity());
-					if (inputTerminal.getCompany() != null && inputTerminal.getCompany().getId() != null) {
-						terminal.setCompany(companyService.getCompany(inputTerminal.getCompany().getId()));
+					if (inputTerminal.getSector() != null && inputTerminal.getSector().getId() != null) {
+						terminal.setSector(sectorService.getSector(inputTerminal.getSector().getId()));
 					}
 					return terminalRepository.save(terminal);
 				} else {
 					return null;
 				}
 			} else {
-				if (inputTerminal.getCompany() != null && inputTerminal.getCompany().getId() != null) {
-					inputTerminal.setCompany(companyService.getCompany(inputTerminal.getCompany().getId()));
+				if (inputTerminal.getSector() != null && inputTerminal.getSector().getId() != null) {
+					inputTerminal.setSector(sectorService.getSector(inputTerminal.getSector().getId()));
 				}
-				if(inputTerminal.getCreateDate() == null) {
+				if (inputTerminal.getCreateDate() == null) {
 					inputTerminal.setCreateDate(new Date());
 				}
 				return terminalRepository.save(inputTerminal);
@@ -58,6 +58,6 @@ public class TerminalServiceImpl implements TerminalService {
 
 	@Override
 	public List<Terminal> getTerminalsByCompany(Long id) {
-		return terminalRepository.findByCompanyId(id);
+		return terminalRepository.findBySectorCompanyId(id);
 	}
 }

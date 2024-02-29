@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.equipsafelog.core.domain.Company;
 import com.equipsafelog.core.domain.Employee;
 import com.equipsafelog.core.domain.PointRegister;
+import com.equipsafelog.core.domain.Sector;
 import com.equipsafelog.core.to.PointRegisterCriteriaSearch;
 import com.equipsafelog.core.to.PointRegisterResultSearch;
 import com.equipsafelog.repository.PointRegisterRepository;
@@ -34,6 +35,9 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 
 	@Autowired
 	private CompanyService companyService;
+
+	@Autowired
+	private SectorService sectorService;
 
 	@Override
 	public List<PointRegister> getAllRegisters() {
@@ -88,7 +92,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 		} else if (criteria.getEmployeeId() != null) {
 			Employee employee = employeeService.getEmployee(criteria.getEmployeeId());
 			if (employee != null) {
-				company = employee.getCompany();
+				company = employee.getSector().getCompany();
 			}
 		}
 		if (criteria.getEmployeeId() != null) {
@@ -101,12 +105,12 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 		List<PointRegisterResultSearch> syncList = mountResult(findByCriteria, company.getId(), criteria.getStart(),
 				criteria.getEnd(), company.getWeekendWork());
 
-		if (company.getMinimalUse() != null && company.getMaximalUse() != null) {
-			Integer minimalUse = company.getMinimalUse();
-			Integer maximalUse = company.getMaximalUse();
+		List<Sector> sectors = sectorService.getSectorByCompanyId(company.getId());
+		Map<Long, Sector> mapSectors = sectors.stream().collect(Collectors.toMap(Sector::getId, f -> f));
+		if (mapSectors != null && !mapSectors.isEmpty()) {
 			return syncList.parallelStream().filter(f -> {
-				return f.getQuantity().intValue() < minimalUse.intValue()
-						|| f.getQuantity().intValue() > maximalUse.intValue();
+				return f.getQuantity().intValue() < mapSectors.get(f.getSectorId()).getMinimalUse().intValue()
+						|| f.getQuantity().intValue() > mapSectors.get(f.getSectorId()).getMaximalUse().intValue();
 			}).collect(Collectors.toList());
 		} else {
 			return syncList;
@@ -130,7 +134,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 			map.put(c, new ConcurrentHashMap<>());
 			Calendar startDate = (Calendar) start.clone();
 			while (startDate.before(end) || startDate.before(Calendar.getInstance())) {
-				if (!weekendWork && (startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+				if ((weekendWork== null || !weekendWork) && (startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
 						|| startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)) {
 					startDate.add(Calendar.DATE, 1);
 					continue;
@@ -150,6 +154,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 				res.setEmployeeId(c.getId());
 				res.setEmployeeIdentity(c.getIdentity());
 				res.setEmployeeName(c.getName());
+				res.setSectorId(c.getSector().getId());
 				map.get(c).put(localDate, res);
 
 				startDate.add(Calendar.DATE, 1);

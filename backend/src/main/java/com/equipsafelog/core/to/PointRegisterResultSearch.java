@@ -14,6 +14,8 @@ public class PointRegisterResultSearch {
 
 	private Long quantity;
 
+	private Long sectorId;
+
 	public Long getEmployeeId() {
 		return employeeId;
 	}
@@ -52,5 +54,13 @@ public class PointRegisterResultSearch {
 	
 	public void setEmployeeName(String employeeName) {
 		this.employeeName = employeeName;
+	}
+
+	public void setSectorId(Long id) {
+		this.sectorId = id;
+	}
+	
+	public Long getSectorId() {
+		return sectorId;
 	}
 }

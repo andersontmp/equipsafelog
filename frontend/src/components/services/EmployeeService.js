@@ -3,11 +3,25 @@ const srvEmployee = "/employee";
 
 
 export default {
+    sortByIdentity(a, b) {
+        const strA = a.identity.toUpperCase();
+        const strB = b.identity.toUpperCase();
+
+        if (strA < strB) {
+            return -1;
+        }
+        if (strA > strB) {
+            return 1;
+        }
+        return 0;
+    },
     getAllEmployees() {
         return new Promise((resolve, reject) => {
             BaseWS.get(`${srvEmployee}`, { headers: { "Content-Type": "application/json" } }).then((response) => {
                 if (response) {
-                    resolve(response.data)
+                    let employeeList = response.data;
+                    employeeList.sort(this.sortByIdentity);
+                    resolve(employeeList)
                 }
             }).catch((error) => {
                 console.log(error);
@@ -31,7 +45,9 @@ export default {
         return new Promise((resolve, reject) => {
             BaseWS.get(`${srvEmployee}/company/` + companyId + '/' + loadAllData, { headers: { "Content-Type": "application/json" } }).then((response) => {
                 if (response) {
-                    resolve(response.data)
+                    let employeeList = response.data;
+                    employeeList.sort(this.sortByIdentity);
+                    resolve(employeeList)
                 }
             }).catch((error) => {
                 console.log(error);

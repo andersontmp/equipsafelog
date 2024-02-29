@@ -52,7 +52,6 @@ public class PointRegisterController {
 	public List<PointRegister> getRegistersByEmployee(@RequestBody PointRegisterCriteriaSearch criteria) {
 		return pointRegisterService.getRegistersByEmployee(criteria).parallelStream().map(f -> {
 			f.getEmployee().setActive(null);
-			f.getEmployee().setCompany(null);
 			return f;
 		}).collect(Collectors.toList());
 	}

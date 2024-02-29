@@ -10,7 +10,6 @@ form.needs-validation(@submit.prevent="submitForm")
           required
         )
         .invalid-feedback Razao Social é obrigatória
-  .row.mb-3
     .col-md-6
       .form-group
         label.form-label(for="cnpj") CNPJ:
@@ -31,7 +30,6 @@ form.needs-validation(@submit.prevent="submitForm")
           required
         )
         .invalid-feedback Responsável é obrigatório
-  .row.mb-3
     .col-md-6
       .form-group
         label.form-label(for="phone") Telefone:
@@ -51,7 +49,6 @@ form.needs-validation(@submit.prevent="submitForm")
           required
         )
         .invalid-feedback Uso mínimo é obrigatorio
-  .row.mb-3
     .col-md-6
       .form-group
         label.form-label(for="maximalUse") Uso maximo:
@@ -61,6 +58,7 @@ form.needs-validation(@submit.prevent="submitForm")
           required
         )
         .invalid-feedback Uso máximo é obrigatório
+        
   .form-check
     label.form-label(for="weekendWork") Trabalha aos finais de semana
     input#weekendWork.form-check-input(type="checkbox", v-model="company.weekendWork")

@@ -33,9 +33,9 @@ public class Employee {
 	private String identity;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "company")
+	@JoinColumn(name = "sector")
 	@JsonIgnoreProperties(value = { "applications", "hibernateLazyInitializer" })
-	private Company company;
+	private Sector sector;
 
 	@Column(name = "active")
 	private Boolean active;
@@ -60,14 +60,6 @@ public class Employee {
 
 	public void setIdentity(String identity) {
 		this.identity = identity;
-	}
-
-	public Company getCompany() {
-		return company;
-	}
-
-	public void setCompany(Company company) {
-		this.company = company;
 	}
 
 	public Boolean getActive() {
@@ -105,6 +97,14 @@ public class Employee {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, identity);
+	}
+	
+	public Sector getSector() {
+		return sector;
+	}
+	
+	public void setSector(Sector sector) {
+		this.sector = sector;
 	}
 
 	@Override

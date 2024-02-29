@@ -1,74 +1,63 @@
 <template lang="pug">
 div(v-if="!isDetail")
   .d-flex.justify-content-start
-    button.btn.btn-success(type="button" @click="createTerminal" title="Adicionar Terminal") +
+    button.btn.btn-success.me-2(
+      type="button",
+      @click="createSector",
+      title="Adicionar Setor"
+    ) +
   .input-group
     span.custom-span.me-5 Pesquisa
     span.custom-span.me-2 Empresa
-    select.custom-span(v-model="selectedCompany" @change="setCompany")
+    select.custom-span.me-2(v-model="selectedCompany", @change="setCompany")
       option(key="", value="")
       option(v-for="item in companiesList", :key="item.id", :value="item.id") {{ item.socialName }}
-    button(@click="filterList") Buscar
+    button.custom-span(@click="filterList") Buscar
   table.custom-table
     thead
       tr
-        th Matricula
-        th Ativo
-        th Ultima Comunicação
-        th Empresa
+        th Nome
+        th Qtde Minima
+        th Qtde Maxima
         th Detalhes
     tbody
-      tr(v-for="item in getListData()", :key="item.id")
-        td {{ item.identity }}
-        td {{ item.active }}
-        td {{ formatDateTime(item.lastCommunication) }}
-        td {{ item.sector.company.socialName }}
+      tr(
+        v-for="item in getListData()",
+        :key="item.id"
+      )
+        td {{ item.name }}
+        td {{ item.minimalUse }}
+        td {{ item.maximalUse }}
         td
           button.btn.btn-warning.btn-sm(type="button" @click="viewDetails(item.id)" title="Editar") >
-TerminalDetailVue(
+SectorDetailVue(
   v-if="isDetail",
-  :id="terminalId",
+  :id="sectorId",
   @closeDetail="closeDetail",
-  @cancelDetail="cancelDetail")
+  @cancelDetail="cancelDetail"
+)
 </template>
 
 <script>
 import CompanyService from "@/components/services/CompanyService";
-import TerminalService from "@/components/services/TerminalService";
-import DateUtil from "@/components/utils/DateUtil";
-import TerminalDetailVue from "./TerminalDetail.vue";
+import SectorService from "@/components/services/SectorService";
+import SectorDetailVue from './SectorDetail.vue';
 
 export default {
   components: {
-    TerminalDetailVue,
+    SectorDetailVue
   },
   data() {
     return {
       data: [],
       filteredData: undefined,
+      sectorId: "",
       selectedCompany: "",
+      isDetail: false,
       companiesList: [],
-      terminalId:"",
-      isDetail:false
     };
   },
   methods: {
-    viewDetails(terminalId) {
-      this.terminalId = terminalId;
-      this.isDetail = true;
-    },
-    closeDetail() {
-      this.isDetail = false;
-      this.populateTerminals();
-      this.filterList();
-    },
-    cancelDetail() {
-      this.isDetail = false;
-    },
-    createTerminal(){
-      this.terminalId = '';
-      this.isDetail = true;
-    },
     getListData() {
       if (this.filteredData) {
         return this.filteredData;
@@ -76,33 +65,48 @@ export default {
         return this.data;
       }
     },
+    viewDetails(sectorId) {
+      this.sectorId = sectorId;
+      this.isDetail = true;
+    },
+    createSector() {
+      this.sectorId = "";
+      this.isDetail = true;
+    },
+    closeDetail() {
+      this.isDetail = false;
+      this.filterList();
+    },
+    cancelDetail() {
+      this.isDetail = false;
+    },
     filterList() {
       let that = this;
       if (this.selectedCompany) {
-        TerminalService.getTerminalsByCompany(this.selectedCompany).then((response) => {
-          if (response) {
+        SectorService.getSectorByCompany(this.selectedCompany, true)
+          .then((response) => {
             that.filteredData = response;
-            that.filteredData.sort(that.sortByIdentity);
-          }
-        });
-      }else{
+            that.filteredData.sort(this.sortByName);
+          })
+          .catch((error) => {
+            console.error("Erro ao obter os dados dos funcionários:", error);
+          });
+      } else {
         that.filteredData = undefined;
       }
     },
-    setCompany(){
-      console.log(this.selectedCompany);
-    },
-    formatDateTime(input){
-      return DateUtil.formatDateTime(input)
-    },
-    populateTerminals(){
-      let that = this;
-      TerminalService.getAllTerminals().then((response) => {
-      if (response) {
-        that.data = response;
+    sortByName(a, b){
+      const strA = a.name.toUpperCase();
+      const strB = b.name.toUpperCase();
+
+      if (strA < strB) {
+        return -1;
       }
-      });
-    },
+      if (strA > strB) {
+          return 1;
+      }
+      return 0;
+      },
   },
   mounted() {
     let that = this;
@@ -111,27 +115,23 @@ export default {
         that.companiesList = response;
       }
     });
-    this.populateTerminals();
   },
 };
 </script>
 
 <style scoped>
-.custom-span {
-  margin-right: 20px;
-  margin-bottom: 10px;
-}
-
 .table-container {
   overflow-x: auto; /* Adiciona uma barra de rolagem horizontal se a tabela for muito larga */
 }
 
 .custom-table {
+  margin-top: 5px;
   width: 100%;
   border-collapse: collapse;
 }
 
-.custom-table th, .custom-table td {
+.custom-table th,
+.custom-table td {
   border: 1px solid #ddd; /* Define as bordas */
   padding-left: 8px; /* Adiciona espaçamento interno */
   text-align: left; /* Alinha o texto à esquerda */

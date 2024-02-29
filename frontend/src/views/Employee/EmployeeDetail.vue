@@ -18,14 +18,14 @@ form.needs-validation(@submit.prevent="submitForm")
         .invalid-feedback Nome é obrigatório
   .row.mb-3 
     |
-    |
     .col-md-6
       .form-group
         label.form-label(for="company") Empresa:
         select#company.form-select(
-          v-model="employee.company.id",
-          @change="setCompany",
+          v-model="companyId",
+          @change="updateCompanySelected",
           required
+          :disabled="!isCreated"
         )
           option(key="", value="")
           option(
@@ -33,6 +33,12 @@ form.needs-validation(@submit.prevent="submitForm")
             :key="item.id",
             :value="item.id"
           ) {{ item.socialName }}
+    .col-md-6
+      .form-group
+        label.form-label(for="sector") Setor:
+        select#sector.form-select(v-model="employee.sector.id", required)
+          option(key="", value="")
+          option(v-for="item in sectorList", :key="item.id", :value="item.id") {{ item.name }}
   .form-check
     label.form-label(for="active") Ativo
     input#active.form-check-input(type="checkbox", v-model="employee.active")
@@ -41,7 +47,7 @@ form.needs-validation(@submit.prevent="submitForm")
   button.btn.btn-secundary.me-2(type="cancel", @click="cancelDetail") Cancelar
   error-modal(
     :error-message="errorMessage",
-   v-if="errorMessage",
+    v-if="errorMessage",
     @close="clearError"
   )
 </template>
@@ -50,11 +56,12 @@ form.needs-validation(@submit.prevent="submitForm")
 import EmployeeService from "@/components/services/EmployeeService";
 import CompanyService from "@/components/services/CompanyService";
 import ErrorModal from "../ErrorModal.vue";
+import SectorService from "@/components/services/SectorService";
 
 export default {
   props: ["id"],
   components: {
-    ErrorModal
+    ErrorModal,
   },
   data() {
     return {
@@ -62,12 +69,18 @@ export default {
         id: "",
         identity: "",
         active: false,
-        company: {
+        sector: {
           id: "",
+          company: {
+            id: "",
+          },
         },
       },
       companiesList: [],
-      errorMessage: '',
+      sectorList: [],
+      errorMessage: "",
+      companyId: "",
+      isCreated:true
     };
   },
   methods: {
@@ -75,9 +88,9 @@ export default {
       let that = this;
       EmployeeService.saveEmployee(this.employee)
         .then((response) => {
-          if(response.errorCode){
+          if (response.errorCode) {
             that.errorMessage = that.showMessage(response.errorCode);
-          }else{
+          } else {
             that.employee = response;
             that.$emit("closeDetail", null);
           }
@@ -86,29 +99,47 @@ export default {
           console.error("Erro ao gravar os dados dos funcionários:", error);
         });
     },
-    showMessage(e){
-      switch(e){
-        case 'COMPANY_REQUIRED':
-          return 'Campo Empresa obrigatorio';
-        case 'IDENTIFY_REQUIRED':
-          return 'Campo Matricula obrigatorio';
-        case 'IDENTIFY_ALREADY_EXISTS':
-          return 'Matricula já cadastrada para essa empresa'
+    showMessage(e) {
+      switch (e) {
+        case "COMPANY_REQUIRED":
+          return "Campo Empresa obrigatorio";
+        case "IDENTIFY_REQUIRED":
+          return "Campo Matricula obrigatorio";
+        case "IDENTIFY_ALREADY_EXISTS":
+          return "Matricula já cadastrada para essa empresa";
       }
     },
     cancelDetail() {
       this.$emit("cancelDetail", null);
     },
     clearError() {
-      this.errorMessage = '';
-    }
+      this.errorMessage = "";
+    },
+    updateCompanySelected() {
+      let that = this;
+      if (this.companyId) {
+        SectorService.getSectorByCompany(this.companyId).then((response) => {
+          if (response) {
+            that.sectorList = response;
+           
+          }
+        });
+      }
+    },
   },
   created() {
     let that = this;
     if (this.id) {
+      this.isCreated = false
       EmployeeService.getEmployeeById(this.id)
         .then((response) => {
           that.employee = response;
+          that.companyId = that.employee.sector.company.id;
+            SectorService.getSectorByCompany(that.companyId).then((response) => {
+              if (response) {
+                that.sectorList = response;
+              }
+            });
         })
         .catch((error) => {
           console.error("Erro ao obter os dados dos funcionários:", error);

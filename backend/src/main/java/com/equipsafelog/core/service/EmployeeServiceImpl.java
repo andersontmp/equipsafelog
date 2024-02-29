@@ -19,7 +19,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	private EmployeeRepository employeeRepository;
 
 	@Autowired
-	private CompanyService companyService;
+	private SectorService sectorService;
 
 	@Autowired
 	private IDEmployeeRepository idEmployeeRepository;
@@ -38,13 +38,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	private void validateEmployee(Employee e) throws Exception {
-		if (e.getCompany() == null) {
-			throw new Exception("COMPANY_REQUIRED");
+		if (e.getSector() == null) {
+			throw new Exception("SECTOR_REQUIRED");
 		}
 		if (e.getIdentity() == null) {
 			throw new Exception("IDENTIFY_REQUIRED");
 		}
-		List<Employee> employees = employeeRepository.findByCompanyIdAndIdentityIgnoreCase(e.getCompany().getId(),
+		List<Employee> employees = employeeRepository.findBySectorCompanyIdAndIdentityIgnoreCase(e.getSector().getId(),
 				e.getIdentity());
 		if (employees != null && !employees.isEmpty()) {
 			if (e.getId() != null) {
@@ -80,8 +80,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 				if (employee != null) {
 					employee.setActive(inputEmployee.getActive());
 					employee.setIdentity(inputEmployee.getIdentity());
-					if (inputEmployee.getCompany() != null && inputEmployee.getCompany().getId() != null) {
-						employee.setCompany(companyService.getCompany(inputEmployee.getCompany().getId()));
+					if (inputEmployee.getSector() != null && inputEmployee.getSector().getId() != null) {
+						employee.setSector(sectorService.getSector(inputEmployee.getSector().getId()));
 					}
 					employee.setIdEmployee(saveIDEmployee(inputEmployee.getIdEmployee()));
 					return employeeRepository.save(employee);
@@ -89,8 +89,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 					return null;
 				}
 			} else {
-				if (inputEmployee.getCompany() != null && inputEmployee.getCompany().getId() != null) {
-					inputEmployee.setCompany(companyService.getCompany(inputEmployee.getCompany().getId()));
+				if (inputEmployee.getSector() != null && inputEmployee.getSector().getId() != null) {
+					inputEmployee.setSector(sectorService.getSector(inputEmployee.getSector().getId()));
 				}
 				inputEmployee.setIdEmployee(inputEmployee.getIdEmployee());
 				return employeeRepository.save(inputEmployee);
@@ -101,23 +101,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public List<Employee> getActiveEmployeeByCompany(Long companyId) {
-		return employeeRepository.findByActiveAndCompanyId(true, companyId);
+		return employeeRepository.findByActiveAndSectorCompanyId(true, companyId);
 	}
 
 	@Override
 	public List<Employee> getEmployeeByTerminal(Long terminalId) {
 		Terminal terminal = terminalService.getTerminal(terminalId);
-		if (terminal != null && terminal.getCompany() != null) {
+		if (terminal != null && terminal.getSector() != null) {
 			terminal.setLastCommunication(new Date());
 			terminalService.saveTerminal(terminal);
-			return employeeRepository.findByActiveAndCompanyId(true, terminal.getCompany().getId());
+			return employeeRepository.findByActiveAndSectorCompanyId(true, terminal.getSector().getId());
 		}
 		return null;
 	}
 
 	@Override
 	public List<Employee> getEmployeeByCompany(Long companyId) {
-		return employeeRepository.findByCompanyId(companyId);
+		return employeeRepository.findBySectorCompanyId(companyId);
 	}
 
 }

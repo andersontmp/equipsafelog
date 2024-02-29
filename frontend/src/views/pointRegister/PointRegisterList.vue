@@ -140,37 +140,12 @@ export default {
           (response) => {
             if (response) {
               that.employeeList = response;
-              that.employeeList.sort(this.sortByIdentity);
             }
           }
         );
       } else {
         that.employeeList = [];
       }
-    },
-    sortBySocialName(a, b){
-      const strA = a.socialName.toUpperCase();
-      const strB = b.socialName.toUpperCase();
-
-      if (strA < strB) {
-        return -1;
-      }
-      if (strA > strB) {
-          return 1;
-      }
-      return 0;
-    },
-    sortByIdentity(a, b){
-      const strA = a.identity.toUpperCase();
-      const strB = b.identity.toUpperCase();
-
-      if (strA < strB) {
-        return -1;
-      }
-      if (strA > strB) {
-          return 1;
-      }
-      return 0;
     },
     mountCriteria(){
       let criteria = {
@@ -246,7 +221,6 @@ export default {
     CompanyService.getAllCompanies().then((response) => {
       if (response) {
         that.companiesList = response;
-        that.companiesList.sort(that.sortBySocialName);
       }
     });
     this.populateRegisters();

@@ -63,23 +63,10 @@ export default {
       CompanyService.getAllCompanies()
         .then((response) => {
           that.data = response;
-          that.data.sort(this.sortBySocialName);
         })
         .catch((error) => {
           console.error("Erro ao obter os dados das empresas:", error);
         });
-    },
-    sortBySocialName(a, b){
-      const strA = a.socialName.toUpperCase();
-      const strB = b.socialName.toUpperCase();
-
-      if (strA < strB) {
-        return -1;
-      }
-      if (strA > strB) {
-          return 1;
-      }
-      return 0;
     }
   },
   mounted() {
