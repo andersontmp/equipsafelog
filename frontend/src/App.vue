@@ -28,7 +28,7 @@
     
 </template>
 <script>
-import CompanyListVue from './views/companies/CompanyList.vue';
+import CompanyListVue from './views/company/CompanyList.vue';
 import EmployeeListVue from './views/employee/EmployeeList.vue';
 import TerminalListVue from './views/terminal/TerminalList.vue';
 import UserListVue from './views/user/UserList.vue';
