@@ -81,16 +81,6 @@ export default {
     cancelDetail() {
       this.isDetail = false;
     },
-    populateEmployees() {
-      let that = this;
-      EmployeeService.getAllEmployees()
-        .then((response) => {
-          that.data = response;
-        })
-        .catch((error) => {
-          console.error("Erro ao obter os dados dos funcionários:", error);
-        });
-    },
     filterList() {
       let that = this;
       if (this.selectedCompany) {
@@ -113,7 +103,6 @@ export default {
         that.companiesList = response;
       }
     });
-    this.populateEmployees();
   },
 };
 </script>

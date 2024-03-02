@@ -27,7 +27,7 @@ public class PointRegisterController {
 	public List<PointRegister> getAllRegisters() {
 		return pointRegisterService.getAllRegisters();
 	}
-	
+
 	@GetMapping(path = "/{id}")
 	public PointRegister getRegisterById(@PathVariable Long id) {
 		return pointRegisterService.getRegisterById(id);
@@ -37,12 +37,12 @@ public class PointRegisterController {
 	public PointRegister updatePointRegister(@RequestBody PointRegister inputPoint) {
 		return pointRegisterService.savePointRegister(inputPoint);
 	}
-	
+
 	@PostMapping(path = "/updateDate")
 	public PointRegister updateDatePointRegister(@RequestBody PointRegister inputPoint) {
 		return pointRegisterService.updateDatePointRegister(inputPoint);
 	}
-	
+
 	@PostMapping(path = "/criteria")
 	public List<PointRegisterResultSearch> findByCriteria(@RequestBody PointRegisterCriteriaSearch criteria) {
 		return pointRegisterService.findByCriteria(criteria);
@@ -55,9 +55,15 @@ public class PointRegisterController {
 			return f;
 		}).collect(Collectors.toList());
 	}
-	
+
 	@PostMapping(path = "/inconsistency")
-	public List<PointRegisterResultSearch> findInconsistencyByCriteria(@RequestBody PointRegisterCriteriaSearch criteria) {
+	public List<PointRegisterResultSearch> findInconsistencyByCriteria(
+			@RequestBody PointRegisterCriteriaSearch criteria) {
 		return pointRegisterService.findInconsistencyByCriteria(criteria);
+	}
+
+	@GetMapping(path = "/export/{employeeId}")
+	public Object exportRegisterByEmployee(@PathVariable Long employeeId) {
+		return pointRegisterService.exportRegisterByEmployee(employeeId);
 	}
 }

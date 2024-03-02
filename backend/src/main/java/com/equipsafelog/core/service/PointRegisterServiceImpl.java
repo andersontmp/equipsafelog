@@ -1,5 +1,7 @@
 package com.equipsafelog.core.service;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,6 +40,8 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 
 	@Autowired
 	private SectorService sectorService;
+
+	static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YYYY HH:mm:ss");
 
 	@Override
 	public List<PointRegister> getAllRegisters() {
@@ -134,7 +138,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 			map.put(c, new ConcurrentHashMap<>());
 			Calendar startDate = (Calendar) start.clone();
 			while (startDate.before(end) || startDate.before(Calendar.getInstance())) {
-				if ((weekendWork== null || !weekendWork) && (startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+				if ((weekendWork == null || !weekendWork) && (startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
 						|| startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)) {
 					startDate.add(Calendar.DATE, 1);
 					continue;
@@ -195,5 +199,16 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 			return pointRegisterRepository.save(pointRegister);
 		}
 		return null;
+	}
+
+	@Override
+	public List<String> exportRegisterByEmployee(Long employeeId) {
+		List<Object[]> registers = pointRegisterRepository.findByEmployeeId(employeeId);
+		List<String> result = new ArrayList<>();
+		result.add("Matricula;Terminal;Data\n");
+		registers.stream().forEach(f -> {
+			result.add(f[0] + ";" + f[1] + ";" + sdf.format((Timestamp) f[2]) + "\n");
+		});
+		return result;
 	}
 }

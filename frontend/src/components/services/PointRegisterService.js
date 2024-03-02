@@ -75,4 +75,16 @@ export default {
             });
         })
     },
+    exportRegisterByEmployee(employeeId){
+        return new Promise((resolve, reject) => {
+            BaseWS.get(`${srvRegister}/export/`+employeeId,{ headers: { "Content-Type": "application/json" } }).then((response) => {
+                if (response) {
+                    resolve(response.data)
+                }
+            }).catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+        })
+    }
 }

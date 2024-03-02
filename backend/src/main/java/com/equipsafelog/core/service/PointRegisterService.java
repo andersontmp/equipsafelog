@@ -22,4 +22,6 @@ public interface PointRegisterService {
 
 	List<PointRegisterResultSearch> findInconsistencyByCriteria(PointRegisterCriteriaSearch criteria);
 
+	List<String> exportRegisterByEmployee(Long employeeId);
+
 }

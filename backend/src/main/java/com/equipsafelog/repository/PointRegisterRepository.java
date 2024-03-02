@@ -15,4 +15,7 @@ public interface PointRegisterRepository extends JpaRepository<PointRegister, Lo
 	
 	@Query(value = "SELECT t FROM PointRegister t WHERE t.employee.id = ?1 AND t.date BETWEEN ?2 AND ?3")
 	List<PointRegister> findByEmployeeAndDates(Long employeeId, Calendar start, Calendar end);
+	
+	@Query(value = "SELECT t.employee.identity, t.terminal.identity, t.date FROM PointRegister t WHERE t.employee.id = ?1 ORDER BY t.date DESC")
+	List<Object[]> findByEmployeeId(Long employeeId);
 }
