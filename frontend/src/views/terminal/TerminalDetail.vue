@@ -1,56 +1,51 @@
 <template lang="pug">
-form.needs-validation(@submit.prevent="submitForm")
-  .row.mb-3
-    .col-md-6
-      .form-group
-        label.form-label(for="identity") Matricula:
-        input#identity.form-control(type="text", v-model="terminal.identity")
-  .row.mb-3 
-    |
-    .col-md-6
-      .form-group
-        label.form-label(for="company") Empresa:
-        select#company.form-select(
-          v-model="companyId",
-          @change="updateCompanySelected",
-          required
-        )
-          option(key="", value="")
-          option(
-            v-for="item in companiesList",
-            :key="item.id",
-            :value="item.id"
-          ) {{ item.socialName }}
-    .col-md-6
-      .form-group
-        label.form-label(for="sector") Setor:
-        select#sector.form-select(v-model="terminal.sector.id", required)
-          option(key="", value="")
-          option(v-for="item in sectorList", :key="item.id", :value="item.id") {{ item.name }}
-  .form-check
-    label.form-label(for="active") Ativo
-    input#active.form-check-input(type="checkbox", v-model="terminal.active")
-  .row.mb-3
-    .col-md-6
-      .form-group
-        label.form-label(for="identity") Ultima Comunicação:
-        datepicker#dpStartDate.me-2(
-          v-model="terminal.lastCommunication",
-          disabled
-        )
-  button.btn.btn-primary.me-2(type="submit") Salvar
-  button.btn.btn-secundary.me-2(type="cancel", @click="cancelDetail") Cancelar
+.margin-left
+  form.needs-validation(@submit.prevent="submitForm")
+    .row.mb-3 
+      .col-md-6
+        .grid-layout
+          label.form-label(for="active") Ativo
+          InputSwitch(v-model="terminal.active" :disabled="!isAdmin()")
+    span.custom-span 
+    .row.mb-3
+      .col-md-6
+        .grid-layout
+          label.form-label(for="identity") Matricula:
+          InputText#identity.form-control(type="text", v-model="terminal.identity" :disabled="!isAdmin()")
+    .row.mb-3 
+      |
+      .col-md-6
+        .grid-layout
+          label.form-label(for="company") Empresa:
+          Dropdown#company(v-model="companyId" :options="companiesList" optionLabel="socialName" placeholder="Selecione uma empresa" @change="updateCompanySelected" showClear :invalid="!companyId" :disabled="!isAdmin()")
+      .col-md-6
+        .grid-layout
+          label.form-label(for="sector") Setor:
+          Dropdown#sector(v-model="terminal.sector" :options="sectorList" optionLabel="name" placeholder="Selecione um setor" showClear :invalid="!terminal.sector" )
+    .row.mb-3
+      .col-md-6
+        .grid-layout
+          label.form-label(for="identity") Ultima Comunicação:
+          Calendar(id="calendar-24h" v-model="terminal.lastCommunication" showTime hourFormat="24" disabled)
+    span.custom-span 
+    div
+      Button.margin-left(type="submit" ) Salvar
+      Button.margin-left(type="cancel", @click="cancelDetail") Cancelar
 </template>
   
 <script>
-import Datepicker from "@vuepic/vue-datepicker";
+import Calendar from 'primevue/calendar';
 import TerminalService from "@/components/services/TerminalService";
 import CompanyService from "@/components/services/CompanyService";
 import SectorService from "@/components/services/SectorService";
+import Dropdown from 'primevue/dropdown';
+import InputSwitch from 'primevue/inputswitch';
 
 export default {
   components: {
-    Datepicker,
+    Calendar,
+    InputSwitch,
+    Dropdown
   },
   props: ["id"],
   data() {
@@ -64,7 +59,7 @@ export default {
         lastCommunication: null,
         createDate: new Date(),
       },
-      companyId: "",
+      companyId: undefined,
       companiesList: [],
       sectorList: [],
     };
@@ -87,13 +82,16 @@ export default {
     updateCompanySelected() {
       let that = this;
       if (this.companyId) {
-        SectorService.getSectorByCompany(this.companyId).then((response) => {
+        SectorService.getSectorByCompany(this.companyId.id).then((response) => {
           if (response) {
             that.sectorList = response;
           }
         });
       }
     },
+    isAdmin(){
+      return this.$store.getters.getData?.role == "ADMIN";
+    }
   },
   mounted() {
     let that = this;
@@ -108,11 +106,13 @@ export default {
     if (this.id) {
       TerminalService.getTerminalById(this.id)
         .then((response) => {
-          let date = new Date(response.lastCommunication);
-          response.lastCommunication = date;
+          if(response.lastCommunication){
+            let date = new Date(response.lastCommunication);
+            response.lastCommunication = date;
+          }
           that.terminal = response;
-          that.companyId = that.terminal.sector.company.id;
-          SectorService.getSectorByCompany(that.companyId).then((response) => {
+          that.companyId = that.terminal.sector.company;
+          SectorService.getSectorByCompany(that.companyId.id).then((response) => {
             if (response) {
               that.sectorList = response;
             }
@@ -129,6 +129,12 @@ export default {
   <style>
 .invalid-feedback {
   color: red;
+}
+.custom-span {
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  color: white;
 }
 </style>
   

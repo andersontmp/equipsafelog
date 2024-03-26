@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.equipsafelog.core.config.TokenService;
 import com.equipsafelog.core.domain.Company;
 import com.equipsafelog.core.service.CompanyService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/company")
@@ -20,9 +23,16 @@ public class CompanyController {
 	@Autowired
 	private CompanyService companyService;
 
+	@Autowired
+	private TokenService tokenService;
+	
+	private String getUser(HttpServletRequest request) {
+		return tokenService.validateToken(request.getHeader("Authorization").replace("Bearer ", ""));
+	}
+	
 	@GetMapping
-	public List<Company> getAllCompanies() {
-		return companyService.getAllCompanies();
+	public List<Company> getAllCompanies(HttpServletRequest request) {
+		return companyService.getAllCompanies(getUser(request));
 	}
 
 	@GetMapping(path = "/{id}")

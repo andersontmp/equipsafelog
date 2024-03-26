@@ -1,43 +1,41 @@
 <template lang="pug">
-form.needs-validation(@submit.prevent="submitForm")
+form.needs-validation(@submit.prevent="submitForm" style="padding-left=40px;")
   .row.mb-3
     .col-md-6
-      .form-group
+      .grid-layout
         label.form-label(for="identity") Matricula:
-        input#identity.form-control(
+        InputText.right_align(
           type="text",
           v-model="register.employee.identity",
           disabled
         )
   .row.mb-3 
-    |
-    |
     .col-md-6
-      .form-group
+      .grid-layout
         label.form-label(for="identity") Terminal:
-        input#identity.form-control(
+        InputText.right_align(
           type="text",
           v-model="register.terminal.identity",
           disabled
         )
   .row.mb-3 
-    |
-    |
     .col-md-6
-      .form-group
+      .grid-layout
         label.form-label(for="identity") Data:
-        datepicker#dpStartDate.me-2(v-model="register.date" disabled)
-  button.btn.btn-primary.me-2(type="submit") Salvar
-  button.btn.btn-secundary.me-2(type="cancel", @click="cancelDetail") Cancelar
+        Calendar.right_align(id="calendar-24h" v-model="register.date" showTime hourFormat="24" disabled)
+  Button.margin-button(@click="cancelDetail" ) Sair
 </template>
   
 <script>
 import PointRegisterService from "@/components/services/PointRegisterService";
-import Datepicker from '@vuepic/vue-datepicker';
+import Calendar from 'primevue/calendar';
+import InputText from 'primevue/inputtext';
+
 
 export default {
   components: {
-    Datepicker
+    Calendar,
+    InputText
   },
   props: ["id"],
   data() {
@@ -92,9 +90,21 @@ export default {
 };
 </script>
   
-  <style>
+<style>
+.grid-layout{
+  display: flex;
+}
 .invalid-feedback {
   color: red;
+}
+
+.form-label{
+  color: white;
+  min-width: 200px;
+}
+.right_align{
+  text-align:right;
+  
 }
 </style>
   

@@ -1,59 +1,70 @@
 <template lang="pug">
-div
+.margin-left
   form.needs-validation(@submit.prevent="submitForm")
+    .row.mb-3 
+      |
+      .col-md-6
+        .grid-layout
+          label.form-label(for="active") Ativo
+          InputSwitch(v-model="employee.active")
+    span.custom-span 
     .row.mb-3
       .col-md-6
-        .form-group
+        .grid-layout
           label.form-label(for="identity") Matricula:
-          input#identity.form-control(
+          InputText#identity(
             type="text",
             v-model="employee.identity",
             required
           )
-          .invalid-feedback Matricula é obrigatória
     .row.mb-3
       .col-md-6
-        .form-group
+        .grid-layout
           label.form-label(for="name") Nome:
-          input#name.form-control(type="text", v-model="employee.name", required)
-          .invalid-feedback Nome é obrigatório
+          InputText#name(type="text", v-model="employee.name", required)
     .row.mb-3 
       |
+      |
       .col-md-6
-        .form-group
+        .grid-layout
           label.form-label(for="company") Empresa:
-          select#company.form-select(
+          Dropdown#company(
             v-model="companyId",
+            :options="companiesList",
+            optionLabel="socialName",
+            placeholder="Selecione uma empresa",
             @change="updateCompanySelected",
-            required
+            showClear,
+            :invalid="!companyId",
             :disabled="!isCreated"
           )
-            option(key="", value="")
-            option(
-              v-for="item in companiesList",
-              :key="item.id",
-              :value="item.id"
-            ) {{ item.socialName }}
       .col-md-6
-        .form-group
+        .grid-layout
           label.form-label(for="sector") Setor:
-          select#sector.form-select(v-model="employee.sector.id", required)
-            option(key="", value="")
-            option(v-for="item in sectorList", :key="item.id", :value="item.id") {{ item.name }}
-    .form-check
-      label.form-label(for="active") Ativo
-      input#active.form-check-input(type="checkbox", v-model="employee.active")
-
+          Dropdown#sector(
+            v-model="employee.sector",
+            :options="sectorList",
+            optionLabel="name",
+            placeholder="Selecione um setor",
+            showClear,
+            :invalid="!employee.sector"
+          )
+    span.custom-span 
     div
-      button.btn.btn-primary.me-2(type="submit") Salvar
-      button.btn.btn-secundary.me-2(type="cancel", @click="cancelDetail") Cancelar
+      Button.margin-left(type="submit") Salvar
+      Button.margin-left(type="cancel", @click="cancelDetail") Cancelar
     error-modal(
       :error-message="errorMessage",
       v-if="errorMessage",
       @close="clearError"
     )
   .margin-top
-    button.btn_color(@click="exportRegisters" :disabled="isCreated") Exportar Registros 
+    Button.margin-left(
+      @click="exportRegisters",
+      :disabled="isCreated",
+      severity="info"
+    ) Exportar Registros
+  Toast(position="top-right")
 </template>
   
 <script>
@@ -62,11 +73,17 @@ import CompanyService from "@/components/services/CompanyService";
 import ErrorModal from "../ErrorModal.vue";
 import SectorService from "@/components/services/SectorService";
 import PointRegisterService from "@/components/services/PointRegisterService";
+import Dropdown from "primevue/dropdown";
+import InputSwitch from "primevue/inputswitch";
+import Toast from "primevue/toast";
 
 export default {
   props: ["id"],
   components: {
     ErrorModal,
+    Dropdown,
+    InputSwitch,
+    Toast,
   },
   data() {
     return {
@@ -84,8 +101,8 @@ export default {
       companiesList: [],
       sectorList: [],
       errorMessage: "",
-      companyId: "",
-      isCreated:true
+      companyId: undefined,
+      isCreated: true,
     };
   },
   methods: {
@@ -94,7 +111,13 @@ export default {
       EmployeeService.saveEmployee(this.employee)
         .then((response) => {
           if (response.errorCode) {
-            that.errorMessage = that.showMessage(response.errorCode);
+            let message = that.showMessage(response.errorCode);
+            that.$toast.add({
+              severity: "error",
+              summary: "Erro ao salvar",
+              detail: message,
+              life: 3000,
+            });
           } else {
             that.employee = response;
             that.$emit("closeDetail", null);
@@ -107,11 +130,13 @@ export default {
     showMessage(e) {
       switch (e) {
         case "COMPANY_REQUIRED":
-          return "Campo Empresa obrigatorio";
+          return "Campo Empresa obrigatório";
         case "IDENTIFY_REQUIRED":
-          return "Campo Matricula obrigatorio";
+          return "Campo Matricula obrigatório";
         case "IDENTIFY_ALREADY_EXISTS":
           return "Matricula já cadastrada para essa empresa";
+        case "SECTOR_REQUIRED":
+          return "Campo Setor é obrigatório";
       }
     },
     cancelDetail() {
@@ -123,44 +148,56 @@ export default {
     updateCompanySelected() {
       let that = this;
       if (this.companyId) {
-        SectorService.getSectorByCompany(this.companyId).then((response) => {
+        SectorService.getSectorByCompany(this.companyId.id).then((response) => {
           if (response) {
             that.sectorList = response;
-           
           }
         });
+      } else {
+        that.employee.sector = undefined;
       }
     },
-    exportRegisters(){
+    exportRegisters() {
       let that = this;
-      PointRegisterService.exportRegisterByEmployee(that.employee.id).then(response => {
+      PointRegisterService.exportRegisterByEmployee(that.employee.id).then(
+        (response) => {
           if (response) {
-            const blob = new Blob([response.join("")], { type: 'text/plain' });
+            const blob = new Blob([response.join("")], { type: "text/plain" });
             const url = window.URL.createObjectURL(blob);
-            const linkDeDownload = document.createElement('a');
+            const linkDeDownload = document.createElement("a");
             linkDeDownload.href = url;
-            linkDeDownload.download = "PointRegisters_"+that.employee.identity+ ".csv";
+            linkDeDownload.download =
+              "PointRegisters_" + that.employee.identity + ".csv";
             document.body.appendChild(linkDeDownload);
             linkDeDownload.click();
             document.body.removeChild(linkDeDownload);
             window.URL.revokeObjectURL(url);
+            that.$toast.add({
+              severity: "success",
+              summary: "Colaborador",
+              detail: "Registro histórico exportado com sucesso",
+              life: 3000,
+            });
           }
-        })
-    }
+        }
+      );
+    },
   },
   created() {
     let that = this;
     if (this.id) {
-      this.isCreated = false
+      this.isCreated = false;
       EmployeeService.getEmployeeById(this.id)
         .then((response) => {
           that.employee = response;
-          that.companyId = that.employee.sector.company.id;
-            SectorService.getSectorByCompany(that.companyId).then((response) => {
+          that.companyId = that.employee.sector.company;
+          SectorService.getSectorByCompany(that.companyId.id).then(
+            (response) => {
               if (response) {
                 that.sectorList = response;
               }
-            });
+            }
+          );
         })
         .catch((error) => {
           console.error("Erro ao obter os dados dos funcionários:", error);
@@ -180,11 +217,11 @@ export default {
   color: red;
 }
 
-.margin-top{
+.margin-top {
   margin-top: 10px;
 }
 
-.btn_color{
+.btn_color {
   border: none;
   border-radius: 4px; /* Cantos arredondados */
   padding: 10px 20px;
@@ -193,8 +230,27 @@ export default {
   background-color: rgb(0, 74, 172); /* Sua cor personalizada */
   color: white;
 }
-.btn_color:hover{
-  background-color: rgb(0, 74, 172); 
+.btn_color:hover {
+  background-color: rgb(0, 74, 172);
+}
+
+.grid-layout {
+  display: flex;
+}
+
+.form-label {
+  color: white;
+  min-width: 200px;
+}
+
+.margin-left {
+  padding-left: 10px;
+}
+.custom-span {
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  color: white;
 }
 </style>
   

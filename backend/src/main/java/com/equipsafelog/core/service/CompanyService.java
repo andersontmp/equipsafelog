@@ -8,7 +8,7 @@ public interface CompanyService {
 
 	Company saveCompany(Company company);
 
-	List<Company> getAllCompanies();
+	List<Company> getAllCompanies(String user);
 
 	Company getCompany(Long id);
 	

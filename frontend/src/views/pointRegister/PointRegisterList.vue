@@ -1,62 +1,45 @@
 <template lang="pug">
+.title_container
+  span.text-center {{ title }}
 div
   .input-group(v-if="!isDetail")
-    span.custom-span.me-5 Pesquisa
+    span.custom-span Pesquisa
     span.custom-span Empresa
-    select.custom-span(v-model="selectedCompany", @change="setCompany")
-      option(key="", value="")
-      option(v-for="item in companiesList", :key="item.id", :value="item.id") {{ item.socialName }}
-    span.custom-span Funcionario
-    select.custom-span(v-model="selectedEmployee")
-      option(key="", value="")
-      option(v-for="item in employeeList", :key="item.id", :value="item.id") {{ item.identity }}
+    Dropdown(v-model="selectedCompany" :options="companiesList" optionLabel="socialName" placeholder="Selecione uma empresa" @change="setCompany" showClear)
+    span.custom-span Colaborador
+    AutoComplete(v-model="selectedEmployee" dropdown :suggestions="employeeListFiltered" @complete="searchSuggest")
+    //Dropdown(v-model="selectedEmployee" :options="employeeList" optionLabel="identity" placeholder="Selecione um colaborador" showClear)
     span.custom-span Mes
-    datepicker#dpStartDate.styleDate.me-2(
-      v-model="startDate",
-      autoApply,
-      :clearable="false",
-      month-picker
-    )
-    button.custom-span(@click="filterList") Buscar
-    button.custom-span(@click="inconsistencyList" :disabled="selectedCompany == ''") Inconsistencias
+    Calendar(v-model="startDate" view="month" dateFormat="mm/yy")
+    Button.margin-button(@click="filterList" ) Buscar
+    Button.margin-button(@click="inconsistencyList" :disabled="!selectedCompany" severity="warning") Inconsistencias
+  span.custom-span
   div(v-if="typeSearch == 'EMPLOYEE' && !isDetail")
-    table.custom-table
-      thead
-        tr
-          th Empregado
-          th Terminal
-          th Data
-          th Detalhes
-      tbody
-        tr(
-          v-for="item in getListData()",
-          :key="item.id",
-          
-        )
-          td {{ item.employee.identity }} - {{ item.employee.name }}
-          td {{ item.terminal.identity }}
-          td {{ formatDateTime(item.date) }}
-          td
-            button.btn.btn-warning.btn-sm(type="button" @click="viewDetails(item.id)" title="Editar") >
+    DataTable(:value="getListData()" stripedRows size="small" paginator :rows="10" :rowsPerPageOptions="[10, 25, 50, 100]" tableStyle="min-width: 50rem")
+      Column(header="Colaborador")
+        template(#body="slotProps")
+          span {{ slotProps.data.employee.identity }} - {{ slotProps.data.employee.name }}
+      Column(field="terminal.identity" header="Terminal")
+      Column(header="Data")
+        template(#body="slotProps")
+          span {{ formatDateTime(slotProps.data.date) }}
+      Column(header="Detalhes")
+        template(#body="slotProps")
+          Button(@click="viewDetails(slotProps.data)" text rounded outlined severity="info" size="small")
+            i(class="pi pi-search")
   div(v-if="typeSearch == 'COMPANY' && !isDetail")
-    table.custom-table
-      thead
-        tr
-          th Empregado
-          th Data
-          th Quantidade
-          th Listar
-      tbody
-        tr(
-          v-for="item in getListData()",
-          :key="item.id",
-          
-        )
-          td {{ item.employeeIdentity }} - {{ item.employeeName }}
-          td {{ formatDate(item.date) }}
-          td {{ item.quantity }}
-          td
-            button.btn.btn-success.btn-sm(type="button" @click="detailRegister(item)" title="Listar" :disabled="item.quantity <= 0") >
+    DataTable(:value="getListData()" stripedRows size="small" paginator :rows="10" :rowsPerPageOptions="[10, 25, 50, 100]" tableStyle="min-width: 50rem")
+      Column(field="employeeIdentity" header="Colaborador")
+        template(#body="slotProps")
+          span {{ slotProps.data.employeeIdentity }} - {{ slotProps.data.employeeName }}
+      Column(header="Data")
+        template(#body="slotProps")
+          span {{ formatDate(slotProps.data.date) }}
+      Column(field="quantity" header="Quantidade")
+      Column(header="Detalhes")
+        template(#body="slotProps")
+          Button(@click="detailRegister(slotProps.data)" text rounded outlined severity="info" size="small")
+            i(class="pi pi-search")
   PointRegisterDetail(
     v-if="isDetail",
     :id="registerId",
@@ -71,28 +54,44 @@ import PointRegisterService from "@/components/services/PointRegisterService";
 import CompanyService from "@/components/services/CompanyService";
 import EmployeeService from "@/components/services/EmployeeService";
 import PointRegisterDetail from "./PointRegisterDetail.vue";
-import Datepicker from "@vuepic/vue-datepicker";
+import Calendar from 'primevue/calendar';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Button from 'primevue/button';
+import Dropdown from 'primevue/dropdown';
+import AutoComplete from 'primevue/autocomplete';
+
 
 export default {
   components: {
-    Datepicker,
+    Calendar,
     PointRegisterDetail,
+    DataTable,
+    Column,
+    Button,
+    Dropdown,
+    AutoComplete
   },
   data() {
     return {
       data: [],
       filteredData: undefined,
-      selectedCompany: "",
+      selectedCompany: undefined,
       companiesList: [],
-      selectedEmployee: "",
+      selectedEmployee: undefined,
       employeeList: [],
+      employeeListFiltered: [],
       startDate: null,
       typeSearch: "EMPLOYEE",
       registerId: "",
       isDetail: false,
+      title:'Registros de Utilização',
     };
   },
   methods: {
+    searchSuggest(event){
+      this.employeeListFiltered = this.employeeList.filter((f) => f.identity.toUpperCase().includes(event.query.toUpperCase()) || f.name.toUpperCase().includes(event.query.toUpperCase())) .map((item) => item.identity + " - " + item.name)
+    },
     detailRegister(register) {
       let that = this;
       let criteria = {
@@ -109,7 +108,7 @@ export default {
       });
     },
     viewDetails(registerId) {
-      this.registerId = registerId;
+      this.registerId = registerId.id;
       this.isDetail = true;
     },
     closeDetail() {
@@ -135,8 +134,8 @@ export default {
     setCompany() {
       let that = this;
       this.selectedEmployee = undefined;
-      if (this.selectedCompany != "") {
-        EmployeeService.getEmployeeByCompany(this.selectedCompany, false).then(
+      if (this.selectedCompany) {
+        EmployeeService.getEmployeeByCompany(this.selectedCompany.id, false).then(
           (response) => {
             if (response) {
               that.employeeList = response;
@@ -152,12 +151,12 @@ export default {
         start: new Date(),
         end: new Date(),
       };
-      criteria.start.setFullYear(this.startDate.year);
-      criteria.start.setMonth(this.startDate.month);
+      criteria.start.setTime(this.startDate.getTime());
+      criteria.end.setTime(this.startDate.getTime());
+      
       criteria.start.setDate(1);
 
-      criteria.end.setFullYear(this.startDate.year);
-      criteria.end.setMonth(this.startDate.month +1);
+      criteria.end.setMonth(criteria.end.getMonth() +1);
       criteria.end.setDate(1);
       criteria.end.setDate(criteria.end.getDate() - 1);
       return criteria;
@@ -166,8 +165,10 @@ export default {
       let that = this;
       let criteria = this.mountCriteria();
       if (this.selectedCompany || this.selectedEmployee) {
-        criteria.companyId = this.selectedCompany;
-        criteria.employeeId = this.selectedEmployee;
+        criteria.companyId = this.selectedCompany?.id;
+        if(this.selectedEmployee){
+          criteria.employeeId = this.employeeList.filter((f) => f.identity === this.selectedEmployee.split(" - ")[0])[0].id;
+        }
         PointRegisterService.findInconsistencyByCriteria(criteria).then((response) => {
           if (response) {
             that.typeSearch = "COMPANY";
@@ -179,12 +180,27 @@ export default {
         });
       }
     },
+    sortBySocialName(a, b) {
+        if(a.date != b.date){
+          return new Date(a.date) - new Date(b.date);
+        }        
+        const strA = a.employeeIdentity.toUpperCase();
+        const strB = b.employeeIdentity.toUpperCase();
+
+        if (strA < strB) {
+            return -1;
+        }
+        if (strA > strB) {
+            return 1;
+        }
+        return 0;
+    },
     filterList() {
       let that = this;
       let criteria = this.mountCriteria();
 
       if (this.selectedEmployee) {
-        criteria.employeeId = this.selectedEmployee;
+        criteria.employeeId = that.employeeList.filter((f) => f.identity === that.selectedEmployee.split(" - ")[0])[0].id;
         PointRegisterService.getRegistersByEmployee(criteria).then(
           (response) => {
             if (response) {
@@ -197,14 +213,12 @@ export default {
           }
         );
       } else if (this.selectedCompany) {
-        criteria.companyId = this.selectedCompany;
+        criteria.companyId = this.selectedCompany?.id;
         PointRegisterService.findByCriteria(criteria).then((response) => {
           if (response) {
             that.typeSearch = "COMPANY";
             that.filteredData = response;
-            that.filteredData.sort(
-              (a, b) => new Date(a.date) - new Date(b.date)
-            );
+            that.filteredData.sort(this.sortBySocialName);
           }
         });
       } else {
@@ -224,45 +238,32 @@ export default {
       }
     });
     this.populateRegisters();
-    this.startDate ={
-      month: new Date().getMonth(),
-      year: new Date().getFullYear()
-    }
+    this.startDate =new Date();
   },
 };
 </script>
 
 <style scoped>
 .custom-span {
-  margin-right: 20px;
+  margin-right: 10px;
+  margin-left: 10px;
   margin-bottom: 10px;
+  color: white;
 }
 
-.container {
-  display: flex; /* ou qualquer outro valor como 'space-around', 'center', 'space-evenly' */
+.margin-button {
+  margin-left: 10px;
+}
+.title_container{
+  text-align: center;
+}
+.text-center {
+  display: inline-block;
+  font-size: large;
+  padding-bottom: 10px;
+  color: white;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 }
 
-.table-container {
-  overflow-x: auto; /* Adiciona uma barra de rolagem horizontal se a tabela for muito larga */
-}
-
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.custom-table th,
-.custom-table td {
-  border: 1px solid #ddd; /* Define as bordas */
-  padding-left: 8px; /* Adiciona espaçamento interno */
-  text-align: left; /* Alinha o texto à esquerda */
-}
-
-.custom-table th {
-  background-color: #f2f2f2; /* Adiciona uma cor de fundo para os cabeçalhos */
-}
-
-.styleDate {
-  width: 150px;
-}
 </style>

@@ -80,6 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 				if (employee != null) {
 					employee.setActive(inputEmployee.getActive());
 					employee.setIdentity(inputEmployee.getIdentity());
+					employee.setName(inputEmployee.getName());
 					if (inputEmployee.getSector() != null && inputEmployee.getSector().getId() != null) {
 						employee.setSector(sectorService.getSector(inputEmployee.getSector().getId()));
 					}

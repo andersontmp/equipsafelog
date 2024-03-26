@@ -1,58 +1,51 @@
 <template lang="pug">
-form.needs-validation(@submit.prevent="submitForm")
-  .row.mb-3 
-    .col-md-6
-      .form-group
-        label.form-label(for="company") Empresa:
-        select#company.form-select(
-          v-model="sector.company.id",
-          required
-        )
-          option(key="", value="")
-          option(
-            v-for="item in companiesList",
-            :key="item.id",
-            :value="item.id"
-          ) {{ item.socialName }}
-    .col-md-6
-      .form-group
-        label.form-label(for="identity") Nome:
-        input#identity.form-control(
-          type="text",
-          v-model="sector.name",
-          required
-        )
-        .invalid-feedback Matricula é obrigatória
-  .row.mb-3
-    .col-md-6
-      .form-group
-        label.form-label(for="name") Quantidade Mimima:
-        input#name.form-control(type="text", v-model="sector.minimalUse", required)
-        .invalid-feedback Qauntidade Minima é obrigatória
-    .col-md-6
-      .form-group
-        label.form-label(for="name") Quantidade Maxima:
-        input#name.form-control(type="text", v-model="sector.maximalUse", required)
-        .invalid-feedback Quantidade Máxima é obrigatória
-
-  button.btn.btn-primary.me-2(type="submit") Salvar
-  button.btn.btn-secundary.me-2(type="cancel", @click="cancelDetail") Cancelar
-  error-modal(
-    :error-message="errorMessage",
-   v-if="errorMessage",
-    @close="clearError"
-  )
+.margin-left
+  form.needs-validation(@submit.prevent="submitForm")
+    .row.mb-3 
+      .col-md-6
+        .grid-layout
+          label.form-label(for="company") Empresa:
+          Dropdown#company(v-model="sector.company" :options="companiesList" optionLabel="socialName" placeholder="Selecione uma empresa" showClear :invalid="!sector.company" :disabled="!isCreated")
+      .col-md-6
+        .grid-layout
+          label.form-label(for="identity") Nome:
+          InputText#identity.form-control(
+            type="text",
+            v-model="sector.name",
+            required
+          )
+    .row.mb-3
+      .col-md-6
+        .grid-layout
+          label.form-label(for="name") Quantidade Mimima:
+          InputText#name.form-control(type="text", v-model="sector.minimalUse", required)
+      .col-md-6
+        .grid-layout
+          label.form-label(for="name") Quantidade Maxima:
+          InputText#name.form-control(type="text", v-model="sector.maximalUse", required)
+    span.custom-span 
+    div
+      Button.margin-left(type="submit" ) Salvar
+      Button.margin-left(type="cancel", @click="cancelDetail") Cancelar
+    error-modal(
+      :error-message="errorMessage",
+    v-if="errorMessage",
+      @close="clearError"
+    )
 </template>
   
 <script>
 import CompanyService from "@/components/services/CompanyService";
 import ErrorModal from "../ErrorModal.vue";
 import SectorService from '@/components/services/SectorService';
+import Dropdown from 'primevue/dropdown';
+
 
 export default {
   props: ["id"],
   components: {
-    ErrorModal
+    ErrorModal,
+    Dropdown
   },
   data() {
     return {
@@ -67,6 +60,7 @@ export default {
       },
       companiesList: [],
       errorMessage: '',
+      isCreated: true,
     };
   },
   methods: {
@@ -98,6 +92,7 @@ export default {
       SectorService.getSector(this.id)
         .then((response) => {
           that.sector = response;
+          that.isCreated = false;
         })
         .catch((error) => {
           console.error("Erro ao obter os dados dos funcionários:", error);
@@ -115,6 +110,19 @@ export default {
   <style>
 .invalid-feedback {
   color: red;
+}
+
+.grid-layout{
+  display: flex;
+}
+.margin-left{
+  padding-left: 10px;
+}
+.custom-span {
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  color: white;
 }
 </style>
   

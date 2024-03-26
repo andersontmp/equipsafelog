@@ -1,35 +1,33 @@
 <template lang="pug">
+.title_container
+  span.text-center {{ title }}
 div(v-if="!isDetail")
-  .d-flex.justify-content-start
-    button.btn.btn-success(type="button" @click="createTerminal" title="Adicionar Terminal") +
   .input-group
-    span.custom-span.me-5 Pesquisa
-    span.custom-span.me-2 Empresa
-    select.custom-span(v-model="selectedCompany" @change="setCompany")
-      option(key="", value="")
-      option(v-for="item in companiesList", :key="item.id", :value="item.id") {{ item.socialName }}
-    button(@click="filterList") Buscar
-  table.custom-table
-    thead
-      tr
-        th Matricula
-        th Ativo
-        th Ultima Comunicação
-        th Empresa
-        th Detalhes
-    tbody
-      tr(v-for="item in getListData()", :key="item.id")
-        td {{ item.identity }}
-        td {{ item.active }}
-        td {{ formatDateTime(item.lastCommunication) }}
-        td {{ item.sector.company.socialName }}
-        td
-          button.btn.btn-warning.btn-sm(type="button" @click="viewDetails(item.id)" title="Editar") >
+    span.custom-span Pesquisa
+    span.custom-span Empresa
+    Dropdown(v-model="selectedCompany" :options="companiesList" optionLabel="socialName" placeholder="Selecione uma empresa" @change="setCompany" showClear)
+    Button.margin-button(@click="filterList" ) Buscar
+  span.custom-span
+  DataTable(:value="getListData()" stripedRows size="small" paginator :rows="10" :rowsPerPageOptions="[10, 25, 50, 100]" tableStyle="min-width: 50rem")
+    Column(field="identity" header="Matricula")
+    Column(header="Ativo")
+      template(#body="slotProps")
+        i(v-if="slotProps.data.active" class="pi pi-check-circle" style="color: green;")
+        i(v-if="!slotProps.data.active" class="pi pi-times-circle" style="color: red;")
+    Column(header="Ultima Comunicação")
+      template(#body="slotProps")
+        span {{ formatDateTime(slotProps.data.lastCommunication) }}
+    Column(field="sector.company.socialName" header="Empresa")
+    Column(header="Detalhes")
+      template(#body="slotProps")
+        Button(@click="viewDetails(slotProps.data)" text rounded outlined severity="info" size="small")
+          i(class="pi pi-search")
 TerminalDetailVue(
   v-if="isDetail",
   :id="terminalId",
   @closeDetail="closeDetail",
   @cancelDetail="cancelDetail")
+Toast(position="top-right")
 </template>
 
 <script>
@@ -37,27 +35,56 @@ import CompanyService from "@/components/services/CompanyService";
 import TerminalService from "@/components/services/TerminalService";
 import DateUtil from "@/components/utils/DateUtil";
 import TerminalDetailVue from "./TerminalDetail.vue";
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Dropdown from 'primevue/dropdown';
+import Toast from "primevue/toast";
 
 export default {
+  props: {
+    isDetailProp: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  watch: {
+    isDetailProp (){
+      this.isDetail = this.isDetailProp;
+    },
+    isDetail(){
+      this.title = this.isDetail ? "Terminal" : "Terminais"
+    }
+  },
   components: {
     TerminalDetailVue,
+    DataTable,
+    Column,
+    Dropdown,
+    Toast,
   },
   data() {
     return {
       data: [],
       filteredData: undefined,
-      selectedCompany: "",
+      selectedCompany: undefined,
       companiesList: [],
-      terminalId:"",
-      isDetail:false
+      terminalId:undefined,
+      isDetail:false,
+      title:'Terminais',
     };
   },
   methods: {
-    viewDetails(terminalId) {
-      this.terminalId = terminalId;
+    viewDetails(terminal) {
+      this.terminalId = terminal.id;
       this.isDetail = true;
     },
     closeDetail() {
+      this.$toast.add({
+        severity: "success",
+        summary: "Terminal",
+        detail: "Registro salvo com sucesso",
+        life: 3000,
+      });
       this.isDetail = false;
       this.populateTerminals();
       this.filterList();
@@ -79,7 +106,7 @@ export default {
     filterList() {
       let that = this;
       if (this.selectedCompany) {
-        TerminalService.getTerminalsByCompany(this.selectedCompany).then((response) => {
+        TerminalService.getTerminalsByCompany(this.selectedCompany.id).then((response) => {
           if (response) {
             that.filteredData = response;
             that.filteredData.sort(that.sortByIdentity);
@@ -111,15 +138,19 @@ export default {
         that.companiesList = response;
       }
     });
-    this.populateTerminals();
+    if(this.isDetailProp){
+      this.isDetail = this.isDetailProp;
+    }
   },
 };
 </script>
 
 <style scoped>
 .custom-span {
-  margin-right: 20px;
+  margin-right: 10px;
+  margin-left: 10px;
   margin-bottom: 10px;
+  color: white;
 }
 
 .table-container {
@@ -139,5 +170,20 @@ export default {
 
 .custom-table th {
   background-color: #f2f2f2; /* Adiciona uma cor de fundo para os cabeçalhos */
+}
+
+.margin-button {
+  margin-left: 10px;
+}
+.title_container{
+  text-align: center;
+}
+.text-center {
+  display: inline-block;
+  font-size: large;
+  padding-bottom: 10px;
+  color: white;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 }
 </style>

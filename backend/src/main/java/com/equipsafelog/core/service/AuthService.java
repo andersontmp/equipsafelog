@@ -16,7 +16,7 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public User doLogin(String username, String password) throws Exception {
-    	User user = userResository.findByUsername(username);
+    	User user = null;
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new Exception("Invalid User or Password");
         }

@@ -1,75 +1,67 @@
 <template lang="pug">
-form.needs-validation(@submit.prevent="submitForm")
-  .row.mb-3
-    .col-md-6
-      .form-group
-        label.form-label(for="socialName") Razao Social:
-        input#socialName.form-control(
-          type="text",
-          v-model="company.socialName",
-          required
-        )
-        .invalid-feedback Razao Social é obrigatória
-    .col-md-6
-      .form-group
-        label.form-label(for="cnpj") CNPJ:
-        input#cnpj.form-control(
-          type="text",
-          v-model="company.cnpj",
-          placeholder="00.000.000/0000-00",
-          required
-        )
-        .invalid-feedback CNPJ é obrigatório
-  .row.mb-3
-    .col-md-6
-      .form-group
-        label.form-label(for="responsable") Responsável:
-        input#responsable.form-control(
-          type="text",
-          v-model="company.responsable",
-          required
-        )
-        .invalid-feedback Responsável é obrigatório
-    .col-md-6
-      .form-group
-        label.form-label(for="phone") Telefone:
-        input#phone.form-control(
-          type="text",
-          v-model="company.phone",
-          required
-        )
-        .invalid-feedback Telefone é obrigatório
-  .row.mb-3
-    .col-md-6
-      .form-group
-        label.form-label(for="minimalUse") Uso mínimo:
-        input#minimalUse.form-control(
-          type="text",
-          v-model="company.minimalUse",
-          required
-        )
-        .invalid-feedback Uso mínimo é obrigatorio
-    .col-md-6
-      .form-group
-        label.form-label(for="maximalUse") Uso maximo:
-        input#maximalUse.form-control(
-          type="text",
-          v-model="company.maximalUse",
-          required
-        )
-        .invalid-feedback Uso máximo é obrigatório
-        
-  .form-check
-    label.form-label(for="weekendWork") Trabalha aos finais de semana
-    input#weekendWork.form-check-input(type="checkbox", v-model="company.weekendWork")
-  button.btn.btn-primary(type="submit") Salvar
-  button.btn.btn-secundary(type="cancel", @click="cancelDetail") Cancelar
+.margin-left
+  form.needs-validation(@submit.prevent="submitForm")
+    .row.mb-3
+      .col-md-6
+        .grid-layout
+          label.form-label(for="socialName") Razao Social:
+          InputText#socialName(
+            type="text",
+            v-model="company.socialName",
+            required,
+            :disabled="!isAdmin()"
+          )
+      .col-md-6
+        .grid-layout
+          label.form-label(for="cnpj") CNPJ:
+          InputMask#cnpj(
+            type="text",
+            v-model="company.cnpj",
+            mask="99.999.999/9999-99",
+            placeholder="00.000.000/0000-00",
+            required,
+            :disabled="!isAdmin()"
+          )
+    .row.mb-3
+      .col-md-6
+        .grid-layout
+          label.form-label(for="responsable") Responsável:
+          InputText#responsable(
+            type="text",
+            v-model="company.responsable",
+            required
+          )
+      .col-md-6
+        .grid-layout
+          label.form-label(for="phone") Telefone:
+          InputMask#phone(
+            type="text",
+            v-model="company.phone",
+            mask="99-99999999?9",
+            placeholder="00-000000000"
+            required
+          )
+    .row.mb-3
+      .col-md-6
+        .grid-layout
+          label.form-label(for="weekendWork") Trabalha aos finais de semana
+          Checkbox(v-model="company.weekendWork" :binary="true" )
+    span.custom-span 
+    div
+      Button.margin-left(type="submit" ) Salvar
+      Button.margin-left(type="cancel", @click="cancelDetail") Cancelar
 </template>
   
 <script>
 import CompanyService from "@/components/services/CompanyService";
+import InputMask from 'primevue/inputmask';
+import Checkbox from 'primevue/checkbox';
 
 export default {
+  components:{
+    Checkbox,
+    InputMask
+  },
   props: ["id"],
   data() {
     return {
@@ -96,6 +88,9 @@ export default {
     cancelDetail() {
       this.$emit("cancelDetail", null);
     },
+    isAdmin(){
+      return this.$store.getters.getData?.role == "ADMIN";
+    }
   },
   created() {
     let that = this;
@@ -116,5 +111,26 @@ export default {
 .invalid-feedback {
   color: red;
 }
+
+.grid-layout{
+  display: flex;
+}
+
+.form-label{
+  color: white;
+  min-width: 200px;
+}
+
+.margin-left{
+  margin-left: 10px;
+}
+
+.custom-span {
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  color: white;
+}
+
 </style>
   

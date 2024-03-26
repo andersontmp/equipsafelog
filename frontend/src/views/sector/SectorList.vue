@@ -1,60 +1,70 @@
 <template lang="pug">
+.title_container
+  span.text-center {{ title }}
 div(v-if="!isDetail")
-  .d-flex.justify-content-start
-    button.btn.btn-success.me-2(
-      type="button",
-      @click="createSector",
-      title="Adicionar Setor"
-    ) +
   .input-group
-    span.custom-span.me-5 Pesquisa
-    span.custom-span.me-2 Empresa
-    select.custom-span.me-2(v-model="selectedCompany", @change="setCompany")
-      option(key="", value="")
-      option(v-for="item in companiesList", :key="item.id", :value="item.id") {{ item.socialName }}
-    button.custom-span(@click="filterList") Buscar
-  table.custom-table
-    thead
-      tr
-        th Nome
-        th Qtde Minima
-        th Qtde Maxima
-        th Detalhes
-    tbody
-      tr(
-        v-for="item in getListData()",
-        :key="item.id"
-      )
-        td {{ item.name }}
-        td {{ item.minimalUse }}
-        td {{ item.maximalUse }}
-        td
-          button.btn.btn-warning.btn-sm(type="button" @click="viewDetails(item.id)" title="Editar") >
+    span.custom-span Pesquisa
+    span.custom-span Empresa
+    Dropdown(v-model="selectedCompany" :options="companiesList" optionLabel="socialName" placeholder="Selecione uma empresa" @change="setCompany" showClear)
+    Button.margin-bottom(@click="filterList" ) Buscar
+  span.custom-span 
+  DataTable(:value="getListData()" stripedRows size="small" paginator :rows="10" :rowsPerPageOptions="[10, 25, 50, 100]" tableStyle="min-width: 50rem")
+    Column(field="name" header="Nome")
+    Column(field="minimalUse" header="Qtde Minima")
+    Column(field="maximalUse" header="Qtde Maxima")
+    Column(header="Detalhes")
+      template(#body="slotProps")
+        Button(@click="viewDetails(slotProps.data)" text rounded outlined severity="info" size="small")
+          i(class="pi pi-search")
 SectorDetailVue(
   v-if="isDetail",
   :id="sectorId",
   @closeDetail="closeDetail",
   @cancelDetail="cancelDetail"
 )
+Toast(position="top-right")
 </template>
 
 <script>
 import CompanyService from "@/components/services/CompanyService";
 import SectorService from "@/components/services/SectorService";
 import SectorDetailVue from './SectorDetail.vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Dropdown from 'primevue/dropdown';
+import Toast from "primevue/toast";
 
 export default {
+  props: {
+    isDetailProp: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  watch: {
+    isDetailProp (){
+      this.isDetail = this.isDetailProp;
+    },
+    isDetail(){
+      this.title = this.isDetail ? "Setor" : "Setores"
+    }
+  },
   components: {
-    SectorDetailVue
+    SectorDetailVue,
+    DataTable,
+    Column,
+    Dropdown,
+    Toast,
   },
   data() {
     return {
       data: [],
       filteredData: undefined,
-      sectorId: "",
-      selectedCompany: "",
+      sectorId: undefined,
+      selectedCompany: undefined,
       isDetail: false,
       companiesList: [],
+      title:'Setores',
     };
   },
   methods: {
@@ -65,8 +75,8 @@ export default {
         return this.data;
       }
     },
-    viewDetails(sectorId) {
-      this.sectorId = sectorId;
+    viewDetails(sector) {
+      this.sectorId = sector.id;
       this.isDetail = true;
     },
     createSector() {
@@ -74,6 +84,12 @@ export default {
       this.isDetail = true;
     },
     closeDetail() {
+      this.$toast.add({
+        severity: "success",
+        summary: "Setor",
+        detail: "Registro salvo com sucesso",
+        life: 3000,
+      });
       this.isDetail = false;
       this.filterList();
     },
@@ -83,7 +99,7 @@ export default {
     filterList() {
       let that = this;
       if (this.selectedCompany) {
-        SectorService.getSectorByCompany(this.selectedCompany, true)
+        SectorService.getSectorByCompany(this.selectedCompany.id, true)
           .then((response) => {
             that.filteredData = response;
             that.filteredData.sort(this.sortByName);
@@ -115,6 +131,9 @@ export default {
         that.companiesList = response;
       }
     });
+    if(this.isDetailProp){
+      this.isDetail = this.isDetailProp;
+    }
   },
 };
 </script>
@@ -139,5 +158,27 @@ export default {
 
 .custom-table th {
   background-color: #f2f2f2; /* Adiciona uma cor de fundo para os cabeçalhos */
+}
+
+.custom-span {
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.margin-bottom {
+  margin-left: 10px;
+}
+.title_container{
+  text-align: center;
+}
+.text-center {
+  display: inline-block;
+  font-size: large;
+  padding-bottom: 10px;
+  color: white;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 }
 </style>

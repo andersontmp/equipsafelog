@@ -137,7 +137,7 @@ public class PointRegisterServiceImpl implements PointRegisterService {
 		employeeByCompany.parallelStream().forEach(c -> {
 			map.put(c, new ConcurrentHashMap<>());
 			Calendar startDate = (Calendar) start.clone();
-			while (startDate.before(end) || startDate.before(Calendar.getInstance())) {
+			while (startDate.before(end) && startDate.before(Calendar.getInstance())) {
 				if ((weekendWork == null || !weekendWork) && (startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
 						|| startDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)) {
 					startDate.add(Calendar.DATE, 1);
